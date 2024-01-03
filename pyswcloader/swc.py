@@ -178,11 +178,12 @@ def read_neuron_path(data_path):
 
 def plot_soma_distribution(data_path, **kwargs):
     path_list = read_neuron_path(data_path)
-    soma_info = pd.DataFrame()
+    soma_info = []
     for path in tqdm(path_list):
         data = read_swc(path)
-        # soma_info = soma_info.append(data.loc[1, 'x':'z'])
-        soma_info = pd.concat([soma_info, data.loc[1, 'x':'z']], axis=0)
+        soma_info.append(np.array(data.loc[1, ['x', 'y', 'z']]))
+    soma_info = pd.DataFrame(soma_info)
+    soma_info.columns = ['x', 'y', 'z']
     fig, _ = plt.subplots(nrows=3, sharex=False, sharey=False)
     cnt = 1
     for axis in ['x', 'y', 'z']:
@@ -195,7 +196,7 @@ def plot_soma_distribution(data_path, **kwargs):
         elif axis == 'y':
             ax.set_title('Dorsal - Ventral')
         else:
-            ax.set_title('Medial - Lateral')
+            ax.set_title('Lateral - Medial')
         cnt += 1
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
