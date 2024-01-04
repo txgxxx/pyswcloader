@@ -20,35 +20,35 @@ def read_swc(path):
 
 def swc_preprocess(path, save_path=None, save=False, check_validity=True, flip=True, dimension=[13200, 8000, 11400]):
     data = read_swc(path)
-    if flip and float(data.loc[1, 'z']) > (11400/2):
+
+    if flip==True and float(data.loc[1, 'z'])>(11400/2):
         data.z = dimension[2] - data.z
-    is_valid = True
-    if check_validity:
-        if len(data.loc[data.parent == -1]) > 1:
-            is_valid = False
+
+    if check_validity==True:
+        if len(data.loc[data.parent==-1])>1:
             print(path + ': more than one soma detected -> parent=-1.')
-            child_list = list(data.loc[data.parent == -1].index[1:])
-            while len(child_list) > 0:
+            child_list = list(data.loc[data.parent==-1].index[1:])
+            while len(child_list)>0:
                 data = data.loc[~data.index.isin(child_list), :]
                 child_list = list(data[data.parent.isin(child_list)].index)
-        if len(data.loc[data.type == 1]) > 1:
-            is_valid = False
-            print(path + ': more than one soma detected -> type=1.')
-            data.loc[data[data.type == 1].index[1:], 'type'] = 0
 
-    if data.x.max() > dimension[0]:
-        data.x = [item if item < dimension[0] else dimension[0]-1 for item in data.x]
+        elif len(data.loc[data.type==1])>1:
+            print(path + ': more than one soma detected -> type=1.')
+            data.loc[data[data.type==1].index[1:],'type'] = 0
+
+    if data.x.max()>dimension[0]:
+        data.x = [item if item<dimension[0] else dimension[0]-1 for item in data.x]
         print('X axis exceeds boundary.')
-    if data.y.max() > dimension[1]:
-        data.y = [item if item < dimension[1] else dimension[1]-1 for item in data.y]
+    if data.y.max()>dimension[1]:
+        data.y = [item if item<dimension[1] else dimension[1]-1 for item in data.y]
         print('Y axis exceeds boundary.')
-    if data.z.max() > dimension[2]:
-        data.z = [item if item < dimension[2] else dimension[2]-1 for item in data.z]
+    if data.z.max()>dimension[2]:
+        data.z = [item if item<dimension[2] else dimension[2]-1 for item in data.z]
         print('Z axis exceeds boundary.')    
 
-    if save:
+    if save==True:
         data.to_csv(save_path, sep=" ", header=None, index=None)
-    return data, is_valid
+    return data
 
 def swc_tree(path):
     tree = Tree()
