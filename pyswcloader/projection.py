@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import os, sys
 import math
-
+from umap import UMAP
 from . import brain
 from . import swc
 
@@ -27,7 +27,7 @@ def projection_length(data_path, annotation, resolution, save=False, save_path=o
                 length.loc[neuron_name, parent_reg] += math.dist(data.loc[idx, 'x':'z'], data.loc[parent_idx, 'x':'z'])/2
     if 0 in length.columns:
         length = length.drop(columns=0)
-    if save == True:
+    if save:
         length.to_csv(os.path.join(save_path, neuron_name+'_projection_length.csv'))
     return length
 
@@ -64,7 +64,7 @@ def projection_length_ipsi(data_path, annotation, resolution, save=False, save_p
                     length.loc[neuron_name, parent_reg] += math.dist(data.loc[idx, 'x':'z'], data.loc[parent_idx, 'x':'z'])/4
     if 0 in length.columns:
         length = length.drop(columns=0)
-    if save == True:
+    if save:
         length.to_csv(os.path.join(save_path, neuron_name+'_projection_length_ipsi.csv'))
     return length
 
@@ -101,7 +101,7 @@ def projection_length_contra(data_path, annotation, resolution, save=False, save
                     length.loc[neuron_name, parent_reg] += math.dist(data.loc[idx, 'x':'z'], data.loc[parent_idx, 'x':'z'])/4
     if 0 in length.columns:
         length = length.drop(columns=0)
-    if save == True:
+    if save:
         length.to_csv(os.path.join(save_path, neuron_name+'_projection_length_contra.csv'))
     return length
 
@@ -114,7 +114,7 @@ def terminal_info(data_path, save=False, save_path=os.getcwd()):
         terminal_list.append(item.identifier)
     info = data.loc[data.id.isin(terminal_list)]
     info = info[~info.type.isin([3, 4])]
-    if save == True:
+    if save:
         info.to_csv(os.path.join(save_path, neuron_name+'_terminal_info.csv'))
     return info
 
@@ -129,7 +129,7 @@ def terminal_count(data_path, annotation, resolution, save=False, save_path=os.g
     count = count.fillna(0)
     if 0 in count.columns:
         count = count.drop(columns=0)
-    if save == True:
+    if save:
         count.to_csv(os.path.join(save_path, neuron_name+'_terminal_count.csv'))
     return count
 
@@ -147,7 +147,7 @@ def terminal_count_ipsi(data_path, annotation, resolution, save=False, save_path
     count = count.fillna(0)
     if 0 in count.columns:
         count = count.drop(columns=0)
-    if save == True:
+    if save:
         count.to_csv(os.path.join(save_path, neuron_name+'_terminal_count_ipsi.csv'))
     return count
 
@@ -165,6 +165,15 @@ def terminal_count_contra(data_path, annotation, resolution, save=False, save_pa
     count = count.fillna(0)
     if 0 in count.columns:
         count = count.drop(columns=0)
-    if save == True:
+    if save:
         count.to_csv(os.path.join(save_path, neuron_name+'_terminal_count_contra.csv'))
     return count
+
+def topographic_projection_info(data_path, annotation, resolution, save=False, save_path=os.getcwd()):
+    neuron_name = data_path.split('/')[-1].split('.')[0]
+    info = terminal_info(data_path)
+    info['region'] = info.apply(lambda x: brain.find_region(x[['x', 'y', 'z']], annotation, resolution), axis=1)
+    terminal_group = info.groupby('region')
+
+
+
