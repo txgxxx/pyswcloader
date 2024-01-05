@@ -1,11 +1,9 @@
-import pyswcloader.swc
-import pyswcloader.brain
-import pyswcloader.projection
-import pyswcloader.projection_batch
+from .reader import swc, brain
+from .projection import *
+from .visualization import *
 import pyswcloader.distance
 import pyswcloader.cluster
-import pyswcloader.visualization
-import pyswcloader.io
+import io
 
 __all__ = [
     'io',
@@ -15,5 +13,5 @@ __all__ = [
     'projection_batch',
     'distance',
     'cluster',
-    'visualization',
+    'neuron_vis',
 ]

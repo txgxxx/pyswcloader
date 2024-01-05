@@ -1,8 +1,10 @@
-import pickle
 import os
+import pickle
+
 
 def load_pkl(path):
     return pickle.load(open(path, 'rb'))
+
 
 CURRENT_WD = os.path.dirname(os.path.abspath(__file__))
 # print(CURRENT_WD)
