@@ -1,10 +1,9 @@
-from multiprocessing import cpu_count, Pool
-from concurrent.futures import ThreadPoolExecutor, as_completed, ProcessPoolExecutor
-
-import fastjsonschema.ref_resolver
-from tqdm import tqdm, trange
 import os, sys
 import glob
+import platform
+from multiprocessing import cpu_count, Pool
+from concurrent.futures import ThreadPoolExecutor, as_completed, ProcessPoolExecutor
+from tqdm import tqdm, trange
 from functools import partial
 import pandas as pd
 from pyswcloader.reader import *
@@ -15,16 +14,14 @@ import projection
 def compute_unix_parallel(func, data_path, cores=int(cpu_count() / 2), **params):
     path_list = swc.read_neuron_path(data_path)
     data = pd.DataFrame()
-    with ProcessPoolExecutor(max_workers=cores) as executor:
-        data = pd.concat(list(tqdm(executor.map(partial(func, **params), path_list), total=len(path_list))))
+    if platform.system() == 'Linux':
+        with ProcessPoolExecutor(max_workers=cores) as executor:
+            data = pd.concat(list(tqdm(executor.map(partial(func, **params), path_list), total=len(path_list))))
+    else:
+        with ThreadPoolExecutor(max_workers=cores) as executor:
+            data = pd.concat(list(tqdm(executor.map(partial(func, **params), path_list), total=len(path_list))))
+
     return data
-    # pool = Pool(cores)
-    # data = pd.concat(pool.map(
-    #     partial(func, **params), tqdm(path_list)
-    # ))
-    # pool.close()
-    # pool.join()
-    # return data
 
 
 def projection_length(data_path, annotation, resolution, cores=int(cpu_count() / 2), save_state=False,
