@@ -1,8 +1,18 @@
+from enum import Enum
+import pickle
+import json
 import nrrd
 import numpy as np
 import pandas as pd
-import json
 from treelib import Tree
+
+FILTER_REGION_PATH = '../database/region_dict.csv'
+ALLEN_REGION_DICT_PATH = '../database/stl_acro_dict.pkl'
+
+
+class Template(Enum):
+    allen = 1
+    customized = 2
 
 
 def read_nrrd(path):
@@ -10,15 +20,21 @@ def read_nrrd(path):
     return anno
 
 
-def find_region(coords, annotataion, resolution):
+def find_region(coords, template, annotataion, resolution):
+    if template == Template.allen:
+        with open(ALLEN_REGION_DICT_PATH, 'rb') as file:
+            allen_region_dict = pickle.load(file)
+        return allen_region_dict[annotataion[int(coords[0] / resolution), int(coords[1] / resolution), int(coords[2] / resolution)]]
     return annotataion[int(coords[0] / resolution), int(coords[1] / resolution), int(coords[2] / resolution)]
 
 
-def find_unique_regions(annotation: np.array) -> list:
-    region_list = list(np.unique(annotation))
-    # if 0 in region_list:
-    #     region_list.remove(0)
-    return region_list
+def find_unique_regions(template: Template, annotation: np.array) -> list:
+    if template != Template.allen:
+        region_list = list(np.unique(annotation))
+        return region_list
+    with open(ALLEN_REGION_DICT_PATH, 'rb') as file:
+        allen_region_dict = pickle.load(file)
+    return allen_region_dict.keys()
 
 
 def __recover_tree(json_file, tree=Tree()):
@@ -78,3 +94,10 @@ def find_parent(key, layer, json_path):
         return id
     elif isinstance(key, str):
         return find_acronym_by_id(id, json_path)
+
+
+if __name__ == '__main__':
+    import pickle
+    with open('/home/cdc/Documents/pyswcloader/pyswcloader/database/acro_stl_dict.pkl', 'rb') as f:
+        data = pickle.load(f)
+    print(data)
