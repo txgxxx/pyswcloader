@@ -1,5 +1,5 @@
 import os
-import sys
+from enum import Enum
 import pandas as pd
 import numpy as np
 from scipy.spatial.distance import squareform, pdist
@@ -11,47 +11,88 @@ import seaborn as sns
 
 from . import distance
 from . import visualization
+from .reader import brain
 
 
-def cluster(n_cluster=4, method='hierarchy', feature='morphology', matrix=None, data_path=None, eps=0.3, min_samples=5,
-            **kwargs):
-    if feature in ['morphology', 'precomputed']:
-        info = pd.DataFrame()
-        if feature == 'morphology':
-            matrix = distance.morphology_matrix(data_path=data_path)
+class Method(Enum):
+    hierarchy = 1
+    kmeans = 2
+    dbscan = 3
 
-        if sorted(list(matrix.index)) == sorted(list(matrix.columns)):
-            vec = squareform(matrix)
-            Z = linkage(vec, 'ward')
-            tsne = TSNE(n_components=2, metric='precomputed', init='random',
-                        perplexity=np.min([len(matrix) - 1, 30])).fit_transform(matrix)
-        else:
-            Z = linkage(matrix, 'ward')
-            tsne = TSNE(n_components=2, perplexity=np.min([len(matrix) - 1, 30])).fit_transform(matrix)
+
+class Feature(Enum):
+    morphology = 1
+    precomputed = 2
+
+
+def cluster(n_cluster: int = 4,
+            template: brain.Template = brain.Template.allen,
+            method: Method = Method.hierarchy,
+            feature: Feature = Feature.morphology,
+            matrix: pd.DataFrame = None,
+            projection: pd.DataFrame = None,
+            data_path: str = None,
+            eps: float = 0.3,
+            min_samples: int = 5,
+            save: bool = False,
+            save_path: str = os.getcwd(),
+            **kwargs) -> tuple[pd.DataFrame, np.array]:
+    """
+    :param n_cluster:
+    :param template:
+    :param method:
+    :param feature:
+    :param matrix:
+    :param projection:
+    :param data_path:
+    :param eps:
+    :param min_samples:
+    :param save:
+    :param save_path:
+    :param kwargs:
+    :return:
+    """
+    info = pd.DataFrame()
+    if feature == Feature.morphology:
+        matrix = distance.morphology_matrix(data_path=data_path)
+
+    if sorted(list(matrix.index)) == sorted(list(matrix.columns)):
+        vec = squareform(matrix)
+        Z = linkage(vec, 'ward')
+        tsne = TSNE(n_components=2, metric='precomputed', init='random',
+                    perplexity=np.min([len(matrix) - 1, 30])).fit_transform(matrix)
+    else:
+        Z = linkage(matrix, 'ward')
+        tsne = TSNE(n_components=2, perplexity=np.min([len(matrix) - 1, 30])).fit_transform(matrix)
 
         info['file_path'] = list(matrix.index)
         info['neuron'] = [item.split('/')[-1].split('.')[0] for item in info.file_path]
-        if method in ['hierarchy', 'kmeans', 'dbscan']:
-            if method == 'hierarchy':
-                f = fcluster(Z, t=n_cluster, criterion='maxclust', **kwargs)
-                plt.figure()
-                dn = dendrogram(Z)
-                plt.show()
-                plt.close()
-                info['label'] = f
-            elif method == 'kmeans':
-                kmeans = KMeans(n_clusters=n_cluster, **kwargs)
-                kmeans.fit(matrix)
-                info['label'] = kmeans.labels_
-            elif method == 'dbscan':
-                dbscan = DBSCAN(eps=eps, min_samples=min_samples, **kwargs).fit(matrix)
-                info['label'] = dbscan.labels_
-
-            sns.scatterplot(x=tsne[:, 0], y=tsne[:, 1], hue=info.label)
-        else:
-            raise ValueError('method value must be hierarchy, kmeans, or dbscan.')
+        if method == Method.hierarchy:
+            f = fcluster(Z, t=n_cluster, criterion='maxclust', **kwargs)
+            info['label'] = f
+        elif method == Method.kmeans:
+            kmeans = KMeans(n_clusters=n_cluster, **kwargs)
+            kmeans.fit(matrix)
+            info['label'] = kmeans.labels_
+        elif method == Method.dbscan:
+            dbscan = DBSCAN(eps=eps, min_samples=min_samples, **kwargs).fit(matrix)
+            info['label'] = dbscan.labels_
+    plot = sns.scatterplot(x=tsne[:, 0], y=tsne[:, 1], hue=info.label)
+    if template == brain.Template.allen:
+        visualization.plot_allen_template_clustermap(projection, info,
+                                                     with_dendrogram=(method == Method.hierarchy),
+                                                     linkage=Z,
+                                                     save=save,
+                                                     save_path=save_path)
     else:
-        raise ValueError('feature value must be either morphology or precomputed.')
+        visualization.plot_customized_template_clustermap(projection, info,
+                                                          with_dendrogram=(method == Method.hierarchy),
+                                                          linkage=Z,
+                                                          save=save,
+                                                          save_path=save_path)
+    if save:
+        info.to_csv(os.path.join(save_path, 'cluster_results.csv'))
+        plot.savefig(os.path.join(save_path, 'tsne.png'))
     return info
 
 
