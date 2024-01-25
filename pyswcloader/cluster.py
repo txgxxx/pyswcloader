@@ -9,9 +9,9 @@ from sklearn.manifold import TSNE
 from matplotlib import pyplot as plt
 import seaborn as sns
 
-from . import distance
-from . import visualization
-from .reader import brain
+import distance
+import visualization
+from reader import *
 
 
 class Method(Enum):
@@ -36,14 +36,14 @@ def cluster(n_cluster: int = 4,
             min_samples: int = 5,
             save: bool = False,
             save_path: str = os.getcwd(),
-            **kwargs) -> tuple[pd.DataFrame, np.array]:
+            **kwargs) -> pd.DataFrame:
     """
     :param n_cluster:
     :param template:
     :param method:
     :param feature:
     :param matrix:
-    :param projection:
+    :param projection: axon_length info
     :param data_path:
     :param eps:
     :param min_samples:
@@ -55,7 +55,6 @@ def cluster(n_cluster: int = 4,
     info = pd.DataFrame()
     if feature == Feature.morphology:
         matrix = distance.morphology_matrix(data_path=data_path)
-
     if sorted(list(matrix.index)) == sorted(list(matrix.columns)):
         vec = squareform(matrix)
         Z = linkage(vec, 'ward')
@@ -65,34 +64,37 @@ def cluster(n_cluster: int = 4,
         Z = linkage(matrix, 'ward')
         tsne = TSNE(n_components=2, perplexity=np.min([len(matrix) - 1, 30])).fit_transform(matrix)
 
-        info['file_path'] = list(matrix.index)
-        info['neuron'] = [item.split('/')[-1].split('.')[0] for item in info.file_path]
-        if method == Method.hierarchy:
-            f = fcluster(Z, t=n_cluster, criterion='maxclust', **kwargs)
-            info['label'] = f
-        elif method == Method.kmeans:
-            kmeans = KMeans(n_clusters=n_cluster, **kwargs)
-            kmeans.fit(matrix)
-            info['label'] = kmeans.labels_
-        elif method == Method.dbscan:
-            dbscan = DBSCAN(eps=eps, min_samples=min_samples, **kwargs).fit(matrix)
-            info['label'] = dbscan.labels_
+    info['file_path'] = list(matrix.index)
+    info['neuron'] = [item.split('/')[-1].split('.')[0] for item in info.file_path]
+    info.set_index('neuron', inplace=True)
+    if method == Method.hierarchy:
+        f = fcluster(Z, t=n_cluster, criterion='maxclust', **kwargs)
+        info['label'] = f
+    elif method == Method.kmeans:
+        kmeans = KMeans(n_clusters=n_cluster, **kwargs)
+        kmeans.fit(matrix)
+        info['label'] = kmeans.labels_
+    elif method == Method.dbscan:
+        dbscan = DBSCAN(eps=eps, min_samples=min_samples, **kwargs).fit(matrix)
+        info['label'] = dbscan.labels_
+    fig = plt.figure()
     plot = sns.scatterplot(x=tsne[:, 0], y=tsne[:, 1], hue=info.label)
-    if template == brain.Template.allen:
-        visualization.plot_allen_template_clustermap(projection, info,
-                                                     with_dendrogram=(method == Method.hierarchy),
-                                                     linkage=Z,
-                                                     save=save,
-                                                     save_path=save_path)
-    else:
-        visualization.plot_customized_template_clustermap(projection, info,
-                                                          with_dendrogram=(method == Method.hierarchy),
-                                                          linkage=Z,
-                                                          save=save,
-                                                          save_path=save_path)
+    if projection is not None:
+        if template == brain.Template.allen:
+            visualization.plot_allen_template_clustermap(projection, info,
+                                                         with_dendrogram=(method == Method.hierarchy),
+                                                         linkage=Z,
+                                                         save=save,
+                                                         save_path=save_path)
+        else:
+            visualization.plot_customized_template_clustermap(projection, info,
+                                                              with_dendrogram=(method == Method.hierarchy),
+                                                              linkage=Z,
+                                                              save=save,
+                                                              save_path=save_path)
     if save:
         info.to_csv(os.path.join(save_path, 'cluster_results.csv'))
-        plot.savefig(os.path.join(save_path, 'tsne.png'))
+        fig.savefig(os.path.join(save_path, 'tsne.png'))
     return info
 
 

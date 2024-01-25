@@ -1,40 +1,35 @@
 from enum import Enum
-import pickle
+import os
 import json
 import nrrd
 import numpy as np
 import pandas as pd
 from treelib import Tree
 
-FILTER_REGION_PATH = '../database/region_dict.csv'
-ALLEN_REGION_DICT_PATH = '../database/stl_acro_dict.pkl'
+from .io import CURRENT_WD
 
 
 class Template(Enum):
     allen = 1
     customized = 2
 
+def read_allen_region_info():
+    region_info = pd.read_csv(os.path.join(CURRENT_WD, 'database', 'region_dict.csv'), index_col=0)
+    region_info = region_info.loc[(region_info.mark == 'bottom') & (region_info.family != 'root')]
+    return region_info
 
 def read_nrrd(path):
     anno, _ = nrrd.read(path)
     return anno
 
 
-def find_region(coords, template, annotataion, resolution):
-    if template == Template.allen:
-        with open(ALLEN_REGION_DICT_PATH, 'rb') as file:
-            allen_region_dict = pickle.load(file)
-        return allen_region_dict[annotataion[int(coords[0] / resolution), int(coords[1] / resolution), int(coords[2] / resolution)]]
+def find_region(coords, annotataion, resolution):
     return annotataion[int(coords[0] / resolution), int(coords[1] / resolution), int(coords[2] / resolution)]
 
 
-def find_unique_regions(template: Template, annotation: np.array) -> list:
-    if template != Template.allen:
-        region_list = list(np.unique(annotation))
-        return region_list
-    with open(ALLEN_REGION_DICT_PATH, 'rb') as file:
-        allen_region_dict = pickle.load(file)
-    return allen_region_dict.keys()
+def find_unique_regions(annotation: np.array) -> list:
+    region_list = list(np.unique(annotation))
+    return region_list
 
 
 def __recover_tree(json_file, tree=Tree()):

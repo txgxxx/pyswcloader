@@ -1,9 +1,8 @@
-import os, sys
-import glob
+import os
 import platform
 from multiprocessing import cpu_count, Pool
 from concurrent.futures import ThreadPoolExecutor, as_completed, ProcessPoolExecutor
-from tqdm import tqdm, trange
+from tqdm import tqdm
 from functools import partial
 import pandas as pd
 from pyswcloader.reader import *
@@ -11,20 +10,19 @@ import projection
 
 
 
-def compute_unix_parallel(func, data_path, cores=int(cpu_count() / 2), **params):
+def compute_projection_parallel(func, data_path, cores=int(cpu_count() / 2), **params):
     path_list = swc.read_neuron_path(data_path)
-    data = pd.DataFrame()
     if platform.system() == 'Linux':
         with ProcessPoolExecutor(max_workers=cores) as executor:
-            data = pd.concat(list(tqdm(executor.map(partial(func, **params), path_list), total=len(path_list))))
+            results = list(tqdm(executor.map(partial(func, **params), path_list), total=len(path_list)))
     else:
         with ThreadPoolExecutor(max_workers=cores) as executor:
-            data = pd.concat(list(tqdm(executor.map(partial(func, **params), path_list), total=len(path_list))))
-
+            results = list(tqdm(executor.map(partial(func, **params), path_list), total=len(path_list)))
+    data = pd.concat(results)
     return data
 
 
-def projection_length(data_path, annotation, resolution, cores=int(cpu_count() / 2), save_state=False,
+def projection_length_batch(data_path, annotation, resolution, cores=int(cpu_count() / 2), save_state=False,
                       save_path=os.getcwd()):
     path_list = swc.read_neuron_path(data_path)
     length = pd.DataFrame()
@@ -37,7 +35,7 @@ def projection_length(data_path, annotation, resolution, cores=int(cpu_count() /
     return length
 
 
-def projection_length_ipsi(data_path, annotation, resolution, cores=int(cpu_count() / 2), save_state=False,
+def projection_length_ipsi_batch(data_path, annotation, resolution, cores=int(cpu_count() / 2), save_state=False,
                            save_path=os.getcwd()):
     path_list = swc.read_neuron_path(data_path)
     length = pd.DataFrame()
@@ -50,7 +48,7 @@ def projection_length_ipsi(data_path, annotation, resolution, cores=int(cpu_coun
     return length
 
 
-def projection_length_contra(data_path, annotation, resolution, cores=int(cpu_count() / 2), save_state=False,
+def projection_length_contra_batch(data_path, annotation, resolution, cores=int(cpu_count() / 2), save_state=False,
                              save_path=os.getcwd()):
     path_list = swc.read_neuron_path(data_path)
     length = pd.DataFrame()
@@ -63,13 +61,7 @@ def projection_length_contra(data_path, annotation, resolution, cores=int(cpu_co
     return length
 
 
-def _terminal_info(path, save_state, save_path):
-    info = terminal_info(path, save=save_state, save_path=save_path)
-    info['neuron'] = os.path.basename(path).split('.')[0]
-    return info
-
-
-def terminal_info(data_path, cores=int(cpu_count() / 2), save_state=False, save_path=os.getcwd()):
+def terminal_info_batch(data_path, cores=int(cpu_count() / 2), save_state=False, save_path=os.getcwd()):
     path_list = swc.read_neuron_path(data_path)
     info = pd.DataFrame()
     pool = Pool(cores)
@@ -79,7 +71,7 @@ def terminal_info(data_path, cores=int(cpu_count() / 2), save_state=False, save_
     return info
 
 
-def terminal_count(data_path, annotation, resolution, cores=int(cpu_count() / 2), save_state=False,
+def terminal_count_batch(data_path, annotation, resolution, cores=int(cpu_count() / 2), save_state=False,
                    save_path=os.getcwd()):
     path_list = swc.read_neuron_path(data_path)
     count = pd.DataFrame()
@@ -92,7 +84,7 @@ def terminal_count(data_path, annotation, resolution, cores=int(cpu_count() / 2)
     return count
 
 
-def terminal_count_ipsi(data_path, annotation, resolution, cores=int(cpu_count() / 2), save_state=False,
+def terminal_count_ipsi_batch(data_path, annotation, resolution, cores=int(cpu_count() / 2), save_state=False,
                         save_path=os.getcwd()):
     path_list = swc.read_neuron_path(data_path)
     count = pd.DataFrame()
@@ -105,7 +97,7 @@ def terminal_count_ipsi(data_path, annotation, resolution, cores=int(cpu_count()
     return count
 
 
-def terminal_count_contra(data_path, annotation, resolution, cores=int(cpu_count() / 2), save_state=False,
+def terminal_count_contra_batch(data_path, annotation, resolution, cores=int(cpu_count() / 2), save_state=False,
                           save_path=os.getcwd()):
     path_list = swc.read_neuron_path(data_path)
     count = pd.DataFrame()
@@ -137,9 +129,9 @@ if __name__ == '__main__':
     annotation = brain.read_nrrd('/home/cdc/Documents/mouse_neuron_analysis/database/annotation_10.nrrd')
     # data = topographic_projection_info_batch(test_path, annotation, 10)
     kwargs_dict = {'annotation': annotation, 'resolution': 10, 'save': False, 'save_path': os.getcwd()}
-    data = compute_unix_parallel(projection.topographic_projection_info, test_path,
-                                 annotation=annotation, resolution=10, save=False,
-                                 save_path=os.getcwd())
+    data = compute_projection_parallel(projection.projection_length, test_path, cores=2, template=brain.Template.allen,
+                                 annotation=annotation, resolution=10, save=False, save_path=None)
     print(data.shape)
     print(data)
+    data.to_csv('/home/cdc/Downloads/topo.csv')
     print(time.time() - t1)

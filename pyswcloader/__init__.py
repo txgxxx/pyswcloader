@@ -1,12 +1,10 @@
-from .reader import swc, brain
-from .projection import *
-from .visualization import *
-import pyswcloader.distance
-import pyswcloader.cluster
-import io
+from reader import brain, swc
+from projection import *
+from visualization import *
+import distance
+import cluster
 
 __all__ = [
-    'io',
     'swc',
     'brain',
     'projection',

@@ -1,11 +1,11 @@
 import numpy as np
-from vispy import scene, io, visuals
+from vispy import scene, io
 from vispy.visuals.filters import Alpha
 from tqdm import tqdm
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from pyswcloader import swc
+from pyswcloader.reader import swc
 
 
 def region_mesh(data_path, color='gray', opacity=0.05):
