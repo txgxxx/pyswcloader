@@ -1,14 +1,15 @@
+import os
+import platform
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from functools import partial
+from multiprocessing import cpu_count
+from collections import Counter
+from tqdm import tqdm, trange
 import numpy as np
-import os, sys
 from sklearn.neighbors import BallTree
 from statistics import mean
-from multiprocessing import Pool, cpu_count
-from functools import partial
-from tqdm import trange, tqdm
 import pandas as pd
-from collections import Counter
-
-from . import swc
+from reader import swc
 
 
 def _find_ratio_score(n):
@@ -63,10 +64,12 @@ def morphology_matrix(data_path, cores=int(cpu_count() / 2), save_path=os.path.j
             if path_list[i] not in done:
                 for j in range(i, len(path_list)):
                     pairs.append([path_list[i], path_list[j]])
-    pool = Pool(cores)
-    pool.map(partial(_set_call_back, pairs=pairs, save_path=save_path), trange(len(pairs)))
-    pool.close()
-    pool.join()
+    if platform.system() == 'Linux':
+        with ProcessPoolExecutor(max_workers=cores) as executor:
+            results = list(tqdm(executor.map(partial(_set_call_back, pairs=pairs, save_path=save_path), list(range(len(pairs)))), total=len(pairs)))
+    else:
+        with ThreadPoolExecutor(max_workers=cores) as executor:
+            results = list(tqdm(executor.map(partial(_set_call_back, pairs=pairs, save_path=save_path), list(range(len(pairs)))), total=len(pairs)))
     print('Calculation done. Aggregating data...')
     info = pd.read_csv(save_path, sep=' ', header=None)
     info = info.drop_duplicates()
