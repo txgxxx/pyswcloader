@@ -1,14 +1,16 @@
+import os.path
+
+from tqdm import tqdm
 import numpy as np
 from vispy import scene, io
 from vispy.visuals.filters import Alpha
-from tqdm import tqdm
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from pyswcloader.reader import swc
+import reader
 
 
-def region_mesh(data_path, color='gray', opacity=0.05):
+def region_mesh(data_path, color='lightgray', opacity=0.1):
     vertices, faces, normals, _ = io.read_mesh(fname=data_path)
     mesh = scene.visuals.Mesh(vertices=vertices, faces=faces, color=color, shading='smooth')
     mesh.attach(Alpha(opacity))
@@ -22,12 +24,12 @@ def neuron_mesh(data_path, color='red', size=1, opacity=1):
         if ''.join(list(data_path)[-4:]) == '.swc':
             neuronlist = [data_path]
         else:
-            neuronlist = swc.read_neuron_path(data_path)
+            neuronlist = reader.swc.read_neuron_path(data_path)
     else:
         raise TypeError('data_path must be str or list-like.')
     coords = pd.DataFrame()
     for _neuron_path in tqdm(neuronlist):
-        _coords = swc.read_swc(_neuron_path)
+        _coords = reader.swc.read_swc(_neuron_path)
         coords = pd.concat([coords, _coords], axis=0)
     mesh = scene.visuals.Markers(
         pos=np.array(coords[['x', 'y', 'z']]),
@@ -64,7 +66,7 @@ def plot_neuron_2d(neuron_path, region_path=None, bgcolor=(1, 1, 1, 0), perspect
         view = canvas.central_widget.add_view()
         neurons = neuron_mesh(data_path=neuron_path, **kwargs)
         view.add(neurons)
-        if region_path != None:
+        if region_path and os.path.exists(region_path):
             regions = region_mesh(data_path=region_path, color=region_color, opacity=region_opacity)
             view.add(regions)
 

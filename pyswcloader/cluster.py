@@ -2,16 +2,18 @@ import os
 from enum import Enum
 import pandas as pd
 import numpy as np
-from scipy.spatial.distance import squareform, pdist
-from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
+
+from scipy.spatial.distance import squareform
+from scipy.cluster.hierarchy import linkage, fcluster
 from sklearn.cluster import KMeans, DBSCAN
 from sklearn.manifold import TSNE
 from matplotlib import pyplot as plt
-import seaborn as sns
+from seaborn import scatterplot
 
 import distance
-import visualization
-from reader import *
+import reader.io
+from reader import brain
+from visualization import projection_vis, neuron_vis
 
 
 class Method(Enum):
@@ -54,8 +56,9 @@ def cluster(n_cluster: int = 4,
     """
     info = pd.DataFrame()
     if feature == Feature.morphology:
-        matrix = distance.morphology_matrix(data_path=data_path)
+        matrix = distance.morphology_matrix(data_path=data_path, save_path=os.path.join(save_path, 'scores_record.txt'))
     if sorted(list(matrix.index)) == sorted(list(matrix.columns)):
+        print('T')
         vec = squareform(matrix)
         Z = linkage(vec, 'ward')
         tsne = TSNE(n_components=2, metric='precomputed', init='random',
@@ -78,16 +81,16 @@ def cluster(n_cluster: int = 4,
         dbscan = DBSCAN(eps=eps, min_samples=min_samples, **kwargs).fit(matrix)
         info['label'] = dbscan.labels_
     fig = plt.figure()
-    plot = sns.scatterplot(x=tsne[:, 0], y=tsne[:, 1], hue=info.label)
+    plot = scatterplot(x=tsne[:, 0], y=tsne[:, 1], hue=info.label)
     if projection is not None:
         if template == brain.Template.allen:
-            visualization.plot_allen_template_clustermap(projection, info,
+            projection_vis.plot_allen_template_clustermap(projection, info,
                                                          with_dendrogram=(method == Method.hierarchy),
                                                          linkage=Z,
                                                          save=save,
                                                          save_path=save_path)
         else:
-            visualization.plot_customized_template_clustermap(projection, info,
+            projection_vis.plot_customized_template_clustermap(projection, info,
                                                               with_dendrogram=(method == Method.hierarchy),
                                                               linkage=Z,
                                                               save=save,
@@ -102,9 +105,19 @@ def plot_cluster(info, show=True, save_path=None, **kwargs):
     for l in np.unique(info.label):
         print(l)
         file_path = list(info[info.label == l]['file_path'])
-        if save_path != None:
-            visualization.plot_neuron_2d(neuron_path=file_path, show=show,
-                                         save_path=os.path.join(save_path, str(l) + '.png'), **kwargs)
+        if save_path is not None:
+            neuron_vis.plot_neuron_2d(neuron_path=file_path, show=show,
+                                         save_path=os.path.join(save_path, 'cluster-' + str(l) + '.png'), **kwargs)
         else:
-            visualization.plot_neuron_2d(neuron_path=file_path, show=show, **kwargs)
+            neuron_vis.plot_neuron_2d(neuron_path=file_path, show=show, **kwargs)
     return True
+
+if __name__ == '__main__':
+    projection = pd.read_csv('/home/cdc/data/mouse_data/temp/axon_length.csv', index_col=0)
+    cluster(
+        n_cluster=5,
+        projection=projection,
+        save=True,
+        data_path='/home/cdc/data/mouse_data/test',
+        save_path='/home/cdc/data/mouse_data/temp/'
+    )

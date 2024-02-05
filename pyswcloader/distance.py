@@ -4,11 +4,12 @@ from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from functools import partial
 from multiprocessing import cpu_count
 from collections import Counter
-from tqdm import tqdm, trange
+from tqdm import tqdm
 import numpy as np
 from sklearn.neighbors import BallTree
 from statistics import mean
 import pandas as pd
+
 from reader import swc
 
 
@@ -51,7 +52,7 @@ def morphology_matrix(data_path, cores=int(cpu_count() / 2), save_path=os.path.j
     for i in range(len(path_list)):
         for j in range(i, len(path_list)):
             pairs.append([path_list[i], path_list[j]])
-    if os.path.exists(save_path) == True:
+    if os.path.exists(save_path):
         exitsting = pd.read_csv(save_path, sep=' ', header=None)
         cnt_existing = exitsting[0].value_counts().to_dict()
         cnt_total = Counter(np.array(pairs)[:, 0])

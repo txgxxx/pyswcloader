@@ -8,16 +8,18 @@ from matplotlib import colormaps
 from itertools import groupby
 import pandas as pd
 from scipy.stats import linregress
-import seaborn as sns
+from seaborn import scatterplot, hls_palette, clustermap
 from sklearn.decomposition import PCA
-from pyswcloader.reader import brain
+
+from projection import projection_batch, projection_neuron
+from reader import brain, io
 
 
 def plot_topographic_projection(data, template=brain.Template.allen, threshold=10, p_threshold=0.05, save=False, save_path=os.getcwd()):
     data['soma_pca'] = PCA(n_components=1).fit_transform(data[['soma_x', 'soma_y', 'soma_z']])
     data['term_pca'] = PCA(n_components=1).fit_transform(data[['x', 'y', 'z']])
     terminal_groups = data.groupby('region')
-    corr = pd.DataFrame(index=data.region.unique(), columns=['r_value', 'p_value'])
+    corr = pd.DataFrame(index=data.index.unique(), columns=['r_value', 'p_value'])
     for region, group in terminal_groups:
         if len(group) > threshold:
             corr.loc[region, 'r_value'] = linregress(group.soma_pca, group.term_pca).rvalue
@@ -49,7 +51,7 @@ def plot_topographic_projection(data, template=brain.Template.allen, threshold=1
     if save:
         plt.savefig(os.path.join(save_path, 'topographic_projection.png'))
     plt.close()
-    return
+    return showdata
 
 
 def plot_correlation(data, region, save=False, save_path=os.getcwd()):
@@ -59,7 +61,7 @@ def plot_correlation(data, region, save=False, save_path=os.getcwd()):
     x = region_data.soma_pca
     y = region_data.term_pca
     regression_result = linregress(x, y)
-    sns.scatterplot(x, y, s=10)
+    scatterplot(x, y, s=10)
     plt.plot([min(x), max(x)],
              [min(x) * regression_result.slope + regression_result.intercept,
               max(x) * regression_result.slope + regression_result.intercept],
@@ -103,7 +105,7 @@ def plot_allen_template_clustermap(axon_length, cluster_results, with_dendrogram
     region_dict_family = region_dict_family.sort_values(by='family')
     data_family = pd.concat([data_agg, region_dict_family], axis=1, join='inner').sort_values(by='family')
     data_family.index.name = ''
-    family_colors = sns.hls_palette(len(set(data_family.family)), s=0.45)
+    family_colors = hls_palette(len(set(data_family.family)), s=0.45)
     row_family = dict(zip(map(str, list(set(data_family.family))), family_colors))
     row_colors = data_family.family.map(row_family)
     row_colors.rename('region', inplace=True)
@@ -111,7 +113,7 @@ def plot_allen_template_clustermap(axon_length, cluster_results, with_dendrogram
     width = max(25, int(len(region_dict_family) * 0.6))
     length = max(width, int(len(cluster_results) * 0.01))
     if with_dendrogram:
-        g = sns.clustermap(data_agg.loc[region_dict_family.index.tolist()], cmap="coolwarm",
+        g = clustermap(data_agg.loc[region_dict_family.index.tolist()], cmap="coolwarm",
                            row_colors=row_colors, col_colors=col_colors,
                            row_cluster=False, col_cluster=with_dendrogram,
                            col_linkage=linkage,
@@ -123,7 +125,7 @@ def plot_allen_template_clustermap(axon_length, cluster_results, with_dendrogram
                            xticklabels=False,
                            cbar_kws={"pad": 0.001, "use_gridspec": False})
     else:
-        g = sns.clustermap(data_agg.loc[region_dict_family.index.tolist()], cmap="coolwarm",
+        g = clustermap(data_agg.loc[region_dict_family.index.tolist()], cmap="coolwarm",
                            row_colors=row_colors, col_colors=col_colors,
                            row_cluster=False, col_cluster=with_dendrogram,
                            dendrogram_ratio=(0.1, 0.05),
@@ -148,6 +150,7 @@ def plot_allen_template_clustermap(axon_length, cluster_results, with_dendrogram
         leaves = g.dendrogram_col.reordered_ind
         neu_names = neu_names[leaves]
         col_colors = col_colors.loc[neu_names]
+        cluster_results = cluster_results.loc[neu_names]
     borders_col = np.cumsum([0] + [sum(1 for i in g) for k, g in groupby(col_colors.values)])
     col_labels = cluster_results.label.unique()
     for start, end, l in zip(borders_col[:-1], borders_col[1:], col_labels):
@@ -157,6 +160,7 @@ def plot_allen_template_clustermap(axon_length, cluster_results, with_dendrogram
         if not os.path.exists(save_path):
             os.mkdir(save_path)
         plt.savefig(os.path.join(save_path, 'projection_pattern.png'))
+        data_agg.loc[region_dict_family.index.tolist()].to_csv(os.path.join(save_path, 'projection_pattern.csv'))
     return
 
 
@@ -183,7 +187,7 @@ def plot_customized_template_clustermap(axon_length,
     width = max(25, int(region_num * 0.6))
     length = max(width, int(len(cluster_results) * 0.01))
     if with_dendrogram:
-        g = sns.clustermap(data_t, cmap="coolwarm",
+        g = clustermap(data_t, cmap="coolwarm",
                            col_colors=col_colors,
                            row_cluster=False, col_cluster=with_dendrogram,
                            col_linkage=linkage,
@@ -196,7 +200,7 @@ def plot_customized_template_clustermap(axon_length,
                            cbar_kws={"pad": 0.001}
                            )
     else:
-        g = sns.clustermap(data_t, cmap="coolwarm",
+        g = clustermap(data_t, cmap="coolwarm",
                            col_colors=col_colors,
                            row_cluster=False,
                            col_cluster=with_dendrogram,
@@ -225,6 +229,7 @@ def plot_customized_template_clustermap(axon_length,
         if not os.path.exists(save_path):
             os.mkdir(save_path)
         plt.savefig(os.path.join(save_path, 'projection_pattern.png'))
+        data_t.to_csv(os.path.join(save_path, 'projection_pattern.csv'))
     return
 
 

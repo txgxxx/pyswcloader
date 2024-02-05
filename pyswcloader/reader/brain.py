@@ -1,11 +1,9 @@
-from enum import Enum
 import os
 import json
-import nrrd
+from enum import Enum
 import numpy as np
 import pandas as pd
 from treelib import Tree
-
 from .io import CURRENT_WD
 
 
@@ -17,10 +15,6 @@ def read_allen_region_info():
     region_info = pd.read_csv(os.path.join(CURRENT_WD, 'database', 'region_dict.csv'), index_col=0)
     region_info = region_info.loc[(region_info.mark == 'bottom') & (region_info.family != 'root')]
     return region_info
-
-def read_nrrd(path):
-    anno, _ = nrrd.read(path)
-    return anno
 
 
 def find_region(coords, annotataion, resolution):
@@ -91,8 +85,4 @@ def find_parent(key, layer, json_path):
         return find_acronym_by_id(id, json_path)
 
 
-if __name__ == '__main__':
-    import pickle
-    with open('/home/cdc/Documents/pyswcloader/pyswcloader/database/acro_stl_dict.pkl', 'rb') as f:
-        data = pickle.load(f)
-    print(data)
+

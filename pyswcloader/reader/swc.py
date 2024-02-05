@@ -1,11 +1,10 @@
+import os
+import math
+import copy
+from tqdm import tqdm
 import pandas as pd
 import numpy as np
-import os, sys
-from tqdm import tqdm
 from treelib import Tree
-import math
-import random
-import copy
 import seaborn as sns
 from matplotlib import pyplot as plt
 import glob
@@ -190,7 +189,7 @@ def read_neuron_path(data_path):
     return path_list
 
 
-def plot_soma_distribution(data_path, **kwargs):
+def plot_soma_distribution(data_path, save=False, save_path=os.getcwd(), **kwargs):
     path_list = read_neuron_path(data_path)
     soma_info = []
     for path in tqdm(path_list):
@@ -216,4 +215,6 @@ def plot_soma_distribution(data_path, **kwargs):
         ax.spines['right'].set_visible(False)
     plt.subplots_adjust(hspace=1)
     plt.subplots_adjust(wspace=0)
-    return fig
+    if save:
+        fig.savefig(os.path.join(save_path, 'soma_distribution.png'))
+    return soma_info

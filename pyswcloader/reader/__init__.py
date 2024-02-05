@@ -1,6 +1,6 @@
-from .swc import *
-from .brain import *
-from .io import *
+from . import swc
+from . import brain
+from . import io
 __all__ = [
     "swc",
     "brain",

@@ -1,6 +1,6 @@
-from .projection import *
-from .projection_batch import *
+from . import projection_neuron
+from . import projection_batch
 __all__ = [
-    "projection",
+    "projection_neuron",
     "projection_batch",
     ]

@@ -1,15 +1,17 @@
-from reader import brain, swc
-from projection import *
-from visualization import *
-import distance
-import cluster
+from reader import *
+from projection import projection_neuron, projection_batch
+from visualization import neuron_vis, projection_vis
+from . import cluster
+from . import distance
 
 __all__ = [
     'swc',
     'brain',
-    'projection',
+    'io',
+    'projection_neuron',
     'projection_batch',
     'distance',
     'cluster',
     'neuron_vis',
+    'projection_vis'
 ]

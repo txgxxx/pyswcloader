@@ -1,9 +1,15 @@
 import os
 import pickle
+import nrrd
 
 
 def load_pkl(path):
     return pickle.load(open(path, 'rb'))
+
+
+def read_nrrd(path):
+    anno, _ = nrrd.read(path)
+    return anno
 
 
 CURRENT_WD = os.path.dirname(os.path.abspath(__file__)) + "/../"
@@ -15,3 +21,5 @@ CURRENT_WD = os.path.dirname(os.path.abspath(__file__)) + "/../"
 ALLEN_BRAIN_TREE = load_pkl(os.path.join(CURRENT_WD, 'database', 'allen_brain_tree.pkl'))
 STL_ACRO_DICT = load_pkl(os.path.join(CURRENT_WD, 'database', 'stl_acro_dict.pkl'))
 ACRO_STL_DICT = load_pkl(os.path.join(CURRENT_WD, 'database', 'acro_stl_dict.pkl'))
+ALLEN_ANNOTATION = read_nrrd(os.path.join(CURRENT_WD, 'database', 'annotation_10.nrrd'))
+ALLEN_ROOT_PATH = os.path.join(CURRENT_WD, 'database', '997.obj')
