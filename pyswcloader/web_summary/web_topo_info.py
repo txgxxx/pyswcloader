@@ -9,9 +9,9 @@ def get_web_topo_info(topo_info, template):
             x=topo_info.index,
             y=topo_info.r_value,
             customdata=list(topo_info.p_value),
-            marker_color='black',
+            # marker_color='black',
             opacity=0.7,
-            width=0.5,
+            width=0.25,
             hovertemplate=
             '<b>region</b>: %{x}' +
             '<br><b>rvalue</b>: %{y:.3f}' +
@@ -28,5 +28,7 @@ def get_web_topo_info(topo_info, template):
             if item != mark:
                 fig.add_vline(x=start, line_width=3, line_dash='dash', line_color='grey')
             mark = item
-    fig.update_layout(height=800, width=1000,)
+    fig.update_layout(height=300,
+                      # width=800,
+                      )
     return py.offline.plot(fig, include_plotlyjs=False, output_type='div')

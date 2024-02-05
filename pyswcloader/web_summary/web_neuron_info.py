@@ -9,7 +9,7 @@ from reader.io import STL_ACRO_DICT
 
 
 def get_web_neuron_summary_info(neuron_num, not_valid):
-    if not_valid > 0:
+    if not_valid == 0:
         succ_alert = '<div class="alert alert-success" role="alert">' \
                      'There are %d neurons in total, and all of them are valid. </div>' % neuron_num
         return succ_alert
@@ -18,20 +18,29 @@ def get_web_neuron_summary_info(neuron_num, not_valid):
     return warn_alert
 
 
-def get_web_neuron_region_info(soma_info, template, annotation, resolution):
-    soma_info['region'] = soma_info.apply(lambda x: find_region(x[['x', 'y', 'z']], annotation, resolution), axis=1)
-    if template == Template.allen:
-        soma_info['region'] = soma_info['region'].map(STL_ACRO_DICT)
-    reg, num = np.unique(soma_info['region'], return_counts=True)
-    reg_dict = dict(zip(reg, num))
-    soma_info['count'] = [reg_dict[reg] for reg in soma_info['region']]
-    soma_group = soma_info.groupby(['region', 'count', 'neuron']).count()
-    classes = 'class="table table-border"'
-    soma_html = soma_group.to_html(header=False)
-    soma_html = soma_html.replace('class="dataframe"', classes)
-    # bootstrap_link = '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">'
-    soma_html = soma_html
-    return soma_html
+def get_web_neuron_region_info(projection):
+    projection['axon_length'] = [np.mean(projection.loc[reg]) for reg in projection.index]
+    projection = projection.sort_values(by='axon_length', ascending=False)
+
+    fig = go.Figure(
+        go.Bar(
+            x=projection.index,
+            y=projection.axon_length,
+            # customdata=list(topo_info.p_value),
+            # marker_color='black',
+            opacity=0.7,
+            width=0.25,
+            hovertemplate=
+            '<b>region</b>: %{x}' +
+            '<br><b>rvalue</b>: %{y:.3f}<extra></extra>'
+
+        )
+    )
+    fig.update_layout(
+        height=300,
+        # width=800,
+        showlegend=False, )
+    return py.offline.plot(fig, include_plotlyjs=False, output_type='div')
 
 
 def get_web_soma_distribution(soma_info):
@@ -81,13 +90,15 @@ def get_web_soma_distribution(soma_info):
             y=density3,
             line=dict(color='rgb(44, 160, 101)'),
             mode='lines',
-            name='Medial - Lateral',
+            name='Lateral - Medial',
             fill='tozeroy',
         ),
         row=3, col=1
     )
+    fig.update_annotations(font_size=12)
     fig.update_layout(
-        height=600, width=1000,
+        height=450,
+        # width=800,
         showlegend=False,)
     return py.offline.plot(fig, include_plotlyjs=False, output_type='div')
 

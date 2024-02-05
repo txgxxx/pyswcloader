@@ -226,9 +226,16 @@ def get_web_cluster_info(cluster_info):
 
 def get_web_neuron_plot(neuron_path):
     path_list = glob.glob(os.path.join(neuron_path, '**/cluster-*.png'), recursive=True)
-    img_html = '<div class="flex-container">'
-    for path in path_list:
-        img_html += '<div class="flex-item"><img src=%s class=img-responsive alt="%s"></div>'%(path, path.split('/')[-1].split('.')[0])
+    # img_html = '<div><div class="listyle">\n'
+    # for path in path_list:
+    #     img_html += '<li><img src="file://%s" alt="%s" /></li>\n'%(path, path.split('/')[-1].split('.')[0])
+    # img_html += '</div></div>'
+    img_html = '<div class="container-fluid"><div class="row justify-content-center">\n'
+
+    for idx, path in enumerate(path_list):
+        img_html += '<div class="col-xs-6 col-md-3 col-lg-2 "> <div class="thumbnail">' \
+                    '<img class="img-responsive" src="file://%s" alt="%s" /><p class="text-center">%s</p></div></div>\n'%(path, path.split('/')[-1].split('.')[0], path.split('/')[-1].split('.')[0])
+    img_html += '</div></div>'
     return img_html
 
 
@@ -241,11 +248,12 @@ def get_web_projection_info(cluster_info, scores, axon_length, template):
         orientation='bottom',
         labels=neus)
     den_fig = go.Figure(data=den.data, layout=den.layout)
+    axon_length = np.log(axon_length)
+    axon_length = axon_length.replace(-np.inf, 0)
     neu_names = axon_length.columns.values
     leaves = den.leaves
     neu_names = neu_names[leaves]
     axon_length = axon_length[neu_names]
-    print(neu_names)
     labels = cluster_info.loc[neu_names].label.values
     label_colors = distinctipy.get_colors(len(np.unique(labels)), pastel_factor=0.7)
     label_colors = ['rgb(' + str(int(c[0] * 255)) + ',' + str(int(c[1] * 255)) + ',' + str(int(c[2] * 255)) + ')' for c
@@ -377,7 +385,8 @@ def get_web_projection_info(cluster_info, scores, axon_length, template):
                 x=anno.x,
                 y=anno.y
             )
-    fig.update_layout(height=1000, width=1000,
+    fig.update_layout(height=900,
+        # height=800, width=800,
                       hovermode='closest',
                       template='none',
                       showlegend=False)

@@ -84,20 +84,16 @@
         --bs-btn-active-bg: #5a23c8;
         --bs-btn-active-border-color: #5a23c8;
       }
+      /*.listyle {width: 1200px; float: left}*/
+      /*.listyle li {list-style: none; width:20%; float:left}*/
+      /*li img {width: 100%; height: 100%}*/
+      div img  {width: 100%; height: 100%}
 
-      .bd-mode-toggle {
-        z-index: 1500;
-      }
-      .flex-container {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        grid-row-gap: 5px;
-      }
-      .flex-item {
-        background-color: lightgray;
-        width: 80px;
-        height: 60px;
-      }
+
+
+
+
+
 
       .bd-mode-toggle .dropdown-menu .active .bi {
         display: block !important;
@@ -109,31 +105,29 @@
   <body>
 
 
-<div class="col-lg-8 mx-auto p-4 py-md-5">
+<div class="col-lg-10 col-md-10 mx-auto p-4 py-md-5">
   <header class="d-flex align-items-center pb-3 mb-5 border-bottom">
     <a href="/" class="d-flex align-items-center text-body-emphasis text-decoration-none">
-<!--      <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"/></svg>-->
       <span class="fs-4">PYSWCLOADER</span>
     </a>
   </header>
 
   <main>
-    <div class="container">
+    <div class=".container-fluid">
 
       <h1 class="text-body-emphasis">Single-Neuron Analysis Report</h1>
 
       <hr class="col-3 col-md-2 mb-5">
 
 
-      <div class="row g-5">
+      <div class=" g-5">
         <h2 class="mt-4">Neuron Info</h2>
         {{neuron_info_summary}}
-<!--        <h4 class="mt-4">Neuron-Region Info</h4>-->
-<!--        {{neuron_region_table}}-->
         <h4 class="mt-4">Soma Distribution</h4>
         {{soma_distribution_plot}}
+        <h4 class="mt-4">Whole-Brain Projection</h4>
+        {{whole_brain_projection_plot}}
         <h2 class="mt-4">Cluster Info</h2>
-        {{cluster_info_table}}
         <h4 class="mt-4">Cluster Map</h4>
         {{projection_pattern_plot}}
         <h4 class="mt-4">Neuron Visualization</h4>

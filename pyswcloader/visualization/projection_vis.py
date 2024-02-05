@@ -93,10 +93,8 @@ def plot_allen_template_clustermap(axon_length, cluster_results, with_dendrogram
     col_colors = cluster_results.label.map(label_colors)
     projection_t = pd.concat([projection_t, region_info], axis=1, join='inner')
     data_agg = projection_t[:-3].groupby('parent').agg('sum')
-    data_agg = np.log(data_agg)
-    data_agg = data_agg.replace(-np.inf, 0)
     data_agg.index.name = ''
-    distribution = np.sum(data_agg, axis=1)
+    distribution = np.mean(data_agg, axis=1)
     distribution = distribution.sort_values(ascending=False)
     top_region = distribution.shape[0] if distribution[0] < 30 else 31
     region_dict_family = region_info[['parent', 'family']].drop_duplicates()
@@ -112,8 +110,10 @@ def plot_allen_template_clustermap(axon_length, cluster_results, with_dendrogram
     row_colors.index.name = ''
     width = max(25, int(len(region_dict_family) * 0.6))
     length = max(width, int(len(cluster_results) * 0.01))
+    data_log = np.log(data_agg)
+    data_log = data_log.replace(-np.inf, 0)
     if with_dendrogram:
-        g = clustermap(data_agg.loc[region_dict_family.index.tolist()], cmap="coolwarm",
+        g = clustermap(data_log.loc[region_dict_family.index.tolist()], cmap="coolwarm",
                            row_colors=row_colors, col_colors=col_colors,
                            row_cluster=False, col_cluster=with_dendrogram,
                            col_linkage=linkage,
@@ -125,7 +125,7 @@ def plot_allen_template_clustermap(axon_length, cluster_results, with_dendrogram
                            xticklabels=False,
                            cbar_kws={"pad": 0.001, "use_gridspec": False})
     else:
-        g = clustermap(data_agg.loc[region_dict_family.index.tolist()], cmap="coolwarm",
+        g = clustermap(data_log.loc[region_dict_family.index.tolist()], cmap="coolwarm",
                            row_colors=row_colors, col_colors=col_colors,
                            row_cluster=False, col_cluster=with_dendrogram,
                            dendrogram_ratio=(0.1, 0.05),
@@ -174,20 +174,20 @@ def plot_customized_template_clustermap(axon_length,
         cluster_results = cluster_results.sort_values(by='label')
     projection = axon_length.loc[cluster_results.index]
     projection_t = projection.loc[:, projection.any()].T
-    projection_t = np.log(projection_t)
-    projection_t = projection_t.replace(-np.inf, 0)
     labels = list(cluster_results.label.unique())
     label_colors = distinctipy.get_colors(len(labels), pastel_factor=0.65)
     label_colors = dict(zip(map(int, labels), label_colors))
     col_colors = cluster_results.label.map(label_colors)
-    distribution = np.sum(projection_t, axis=1)
+    distribution = np.mean(projection_t, axis=1)
     distribution = distribution.sort_values(ascending=False)
     region_num = distribution.shape[0] if distribution[0] < 30 else 30
     data_t = projection_t.loc[distribution.index[:region_num]]
     width = max(25, int(region_num * 0.6))
     length = max(width, int(len(cluster_results) * 0.01))
+    data_log = np.log(data_t)
+    data_log = data_t.replace(-np.inf, 0)
     if with_dendrogram:
-        g = clustermap(data_t, cmap="coolwarm",
+        g = clustermap(data_log, cmap="coolwarm",
                            col_colors=col_colors,
                            row_cluster=False, col_cluster=with_dendrogram,
                            col_linkage=linkage,
@@ -200,7 +200,7 @@ def plot_customized_template_clustermap(axon_length,
                            cbar_kws={"pad": 0.001}
                            )
     else:
-        g = clustermap(data_t, cmap="coolwarm",
+        g = clustermap(data_log, cmap="coolwarm",
                            col_colors=col_colors,
                            row_cluster=False,
                            col_cluster=with_dendrogram,
