@@ -1,21 +1,19 @@
 import os
-import nrrd
 import jinja2
+import nrrd
 import pandas as pd
-from scipy.spatial.distance import squareform
-
 from reader.brain import Template
-from web_cluster_info import get_web_projection_info, get_web_cluster_info, get_web_neuron_plot
-from web_neuron_info import get_web_neuron_summary_info, get_web_soma_distribution, get_web_neuron_region_info
-from web_topo_info import get_web_topo_info
+from .web_cluster_info import get_web_projection_info, get_web_neuron_plot
+from .web_neuron_info import get_web_neuron_summary_info, get_web_soma_distribution, get_web_neuron_region_info
+from .web_topo_info import get_web_topo_info
 
-TEMPLATE_PATH = './template/template.html'
+
+TEMPLATE_PATH = 'web_summary/templates/template.html'
 
 def build_web_summary(neuron_info, soma_info, cluster_info, topo_info, template, save_path):
     neuron_web_info = get_web_neuron_summary_info(neuron_info[0], neuron_info[2])
 
     soma_web_info = get_web_soma_distribution(soma_info)
-    # cluster_web_info = get_web_cluster_info(cluster_info)
     info = pd.read_csv(os.path.join(save_path, 'scores_record.txt'), sep=' ', header=None)
     info = info.drop_duplicates()
     _score = info.pivot_table(index=0, columns=1, values=2)
@@ -42,16 +40,16 @@ def build_web_summary(neuron_info, soma_info, cluster_info, topo_info, template,
         f.write(html)
 
 
-if __name__ == '__main__':
-    soma_info = pd.read_csv('/home/cdc/data/mouse_data/temp/soma_info.csv')
-    cluster_info = pd.read_csv('/home/cdc/data/mouse_data/temp/cluster_results.csv', index_col=0)
-    # print(cluster_info)
-    topo_info = pd.read_csv('/home/cdc/Documents/VisualiaztionTest/neuron_cluster_vis/topo_info.csv')
-    anno_path = '/home/cdc/Documents/pyswcloader/pyswcloader/database/annotation_10.nrrd'
-    anno, _ = nrrd.read(anno_path)
-    build_web_summary([37, 37, 0], soma_info, cluster_info, topo_info,
-                      template=Template.allen,
-                      save_path='/home/cdc/data/mouse_data/temp/')
+# if __name__ == '__main__':
+#     soma_info = pd.read_csv('/home/cdc/data/mouse_data/temp/soma_info.csv')
+#     cluster_info = pd.read_csv('/home/cdc/data/mouse_data/temp/cluster_results.csv', index_col=0)
+#     # print(cluster_info)
+#     topo_info = pd.read_csv('/home/cdc/Documents/VisualiaztionTest/neuron_cluster_vis/topo_info.csv')
+#     anno_path = '/home/cdc/Documents/pyswcloader/pyswcloader/database/annotation_10.nrrd'
+#     anno, _ = nrrd.read(anno_path)
+#     build_web_summary([37, 37, 0], soma_info, cluster_info, topo_info,
+#                       template=Template.allen,
+#                       save_path='/home/cdc/data/mouse_data/temp1/')
 
 
 

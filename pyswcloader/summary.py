@@ -7,6 +7,7 @@ from cluster import cluster, Method, Feature, plot_cluster
 from projection import projection_neuron, projection_batch
 from reader import io, swc, brain
 from visualization import *
+from web_summary import build_web_summary
 
 
 class Summary:
@@ -23,6 +24,8 @@ class Summary:
             self.resolution = resolution
             self.region_path = region_path
         self.cores = cores
+        if not os.path.exists(save_path):
+            os.mkdir(save_path)
         self.save_path = save_path
 
     def __check_data(self):
@@ -83,7 +86,7 @@ class Summary:
         neuron_num, is_valid, not_valid = self.__check_data()
         print('neuron num:%2d, valid neuron num:%2d, fix %2d neurons' % (neuron_num, is_valid, not_valid))
         #
-        self.__get_neuron_info()
+        soma_info = self.__get_neuron_info()
         # cluster info
         if n_clusters <= 0:
             print('illegal cluster num settings, the n_cluster must be set > 0')
@@ -94,17 +97,32 @@ class Summary:
             return
         cluster_info = self.__get_cluster_info(n_clusters)
         topographoc_info = self.__get_topographic_info()
+        build_web_summary([neuron_num, is_valid, not_valid],
+                          soma_info, cluster_info,
+                          topographoc_info, self.template, self.save_path)
+        print("web summary path: %s\n" \
+              "cluster result path: %s\n"\
+              "axon length path: %s\n"\
+              "soma distribution path: %s\n"\
+              "projection pattern path: %s\n"\
+              "tsne path: %s\n"\
+              "topographic projection path:%s\n" % (os.path.join(self.save_path, 'Single-Neuron-Report.html'),
+                                                    os.path.join(self.save_path, 'cluster_results.csv'),
+                                                    os.path.join(self.save_path, 'axon_length.csv'),
+                                                    os.path.join(self.save_path, 'soma_distribution.png'),
+                                                    os.path.join(self.save_path, 'projection_pattern.png'),
+                                                    os.path.join(self.save_path, 'tsne.png'),
+                                                    os.path.join(self.save_path, "topographic_projection.png")))
         return
-
 
 if __name__ == '__main__':
     parse = argparse.ArgumentParser(description="args init")
     parse.add_argument('--data_path', '-d', type=str, default='', help='swc data path')
     parse.add_argument('--save_path', '-p', type=str, default='', help="results save path")
-    parse.add_argument("--template", '-t', type=int, default=0,
+    parse.add_argument("--templates", '-t', type=int, default=0,
                        help="brain altas, 0-allen mouse brain altas(2017) or 1-customized, defalut: 0")
     parse.add_argument('--annotation', '-a', type=str, default='',
-                       help="when set template as 1, set annotation path (.nrrd)")
+                       help="when set templates as 1, set annotation path (.nrrd)")
     parse.add_argument("--resolution", '-r', type=int, default=10, help="the altas annotation resolution")
     parse.add_argument('--workers', type=int, default=1,
                        help="The maximum number of processes that can be used to '\
@@ -112,12 +130,12 @@ if __name__ == '__main__':
                        worker processes will be created as the machine has processors.")
     parse.add_argument("--n_clusters", '-n', type=int, default=3, help="set cluster number, must be set > 0")
     args = parse.parse_args()
-    if args.template == 0:
+    if args.templates == 0:
         template = brain.Template.allen
     else:
         template = brain.Template.customized
         if not args.annotation:
-            print('annotation must be set since template is customized.')
+            print('annotation must be set since templates is customized.')
     summary = Summary(data_path=args.data_path,
                       template=template,
                       annotation=args.annotation,

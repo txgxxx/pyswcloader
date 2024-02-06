@@ -58,7 +58,6 @@ def cluster(n_cluster: int = 4,
     if feature == Feature.morphology:
         matrix = distance.morphology_matrix(data_path=data_path, save_path=os.path.join(save_path, 'scores_record.txt'))
     if sorted(list(matrix.index)) == sorted(list(matrix.columns)):
-        print('T')
         vec = squareform(matrix)
         Z = linkage(vec, 'ward')
         tsne = TSNE(n_components=2, metric='precomputed', init='random',
@@ -103,7 +102,6 @@ def cluster(n_cluster: int = 4,
 
 def plot_cluster(info, show=True, save_path=None, **kwargs):
     for l in np.unique(info.label):
-        print(l)
         file_path = list(info[info.label == l]['file_path'])
         if save_path is not None:
             neuron_vis.plot_neuron_2d(neuron_path=file_path, show=show,

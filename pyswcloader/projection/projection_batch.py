@@ -129,7 +129,7 @@ def topographic_projection_info_batch(data_path, annotation, resolution, cores=i
 #     annotation = io.read_nrrd('/home/cdc/Documents/mouse_neuron_analysis/database/annotation_10.nrrd')
 #     # data = topographic_projection_info_batch(test_path, annotation, 10)
 #     kwargs_dict = {'annotation': annotation, 'resolution': 10, 'save': False, 'save_path': os.getcwd()}
-#     data = compute_projection_parallel(topographic_projection_info, test_path, cores=4, template=brain.Template.allen,
+#     data = compute_projection_parallel(topographic_projection_info, test_path, cores=4, templates=brain.Template.allen,
 #                                        annotation=annotation, resolution=10, save=False, save_path=None)
 #     print(data.shape)
 #     print(data)

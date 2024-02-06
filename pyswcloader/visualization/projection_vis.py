@@ -185,7 +185,7 @@ def plot_customized_template_clustermap(axon_length,
     width = max(25, int(region_num * 0.6))
     length = max(width, int(len(cluster_results) * 0.01))
     data_log = np.log(data_t)
-    data_log = data_t.replace(-np.inf, 0)
+    data_log = data_log.replace(-np.inf, 0)
     if with_dendrogram:
         g = clustermap(data_log, cmap="coolwarm",
                            col_colors=col_colors,

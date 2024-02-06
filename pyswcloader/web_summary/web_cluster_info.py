@@ -230,7 +230,7 @@ def get_web_neuron_plot(neuron_path):
     # for path in path_list:
     #     img_html += '<li><img src="file://%s" alt="%s" /></li>\n'%(path, path.split('/')[-1].split('.')[0])
     # img_html += '</div></div>'
-    img_html = '<div class="container-fluid"><div class="row justify-content-center">\n'
+    img_html = '<div class="container-fluid"><div class="row justify-content-start">\n'
 
     for idx, path in enumerate(path_list):
         img_html += '<div class="col-xs-6 col-md-3 col-lg-2 "> <div class="thumbnail">' \
