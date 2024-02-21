@@ -4,9 +4,6 @@ from seaborn._statistics import KDE
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-from reader.brain import find_region, Template
-from reader.io import STL_ACRO_DICT
-
 
 def get_web_neuron_summary_info(neuron_num, not_valid):
     if not_valid == 0:

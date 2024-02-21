@@ -4,15 +4,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.cm as cm
-from matplotlib import colormaps
 from itertools import groupby
 import pandas as pd
 from scipy.stats import linregress
 from seaborn import scatterplot, hls_palette, clustermap
 from sklearn.decomposition import PCA
 
-from projection import projection_batch, projection_neuron
-from reader import brain, io
+from reader import brain
 
 
 def plot_topographic_projection(data, template=brain.Template.allen, threshold=10, p_threshold=0.05, save=False, save_path=os.getcwd()):
@@ -27,11 +25,11 @@ def plot_topographic_projection(data, template=brain.Template.allen, threshold=1
     showdata = corr.dropna()
     showdata.r_value = abs(corr.r_value)
     showdata = showdata[showdata.p_value < p_threshold]
-    cmap = colormaps.get_cmap('coolwarm_r')
+    cmap = cm.get_cmap('coolwarm_r')
     norm = colors.Normalize(vmin=min(showdata.p_value), vmax=max(showdata.p_value))
     bar = cm.ScalarMappable(norm, cmap)
     norm_values = (showdata.p_value - min(showdata.p_value)) / (max(showdata.p_value) - min(showdata.p_value))
-    showdata['color'] = [colormaps.get_cmap('coolwarm_r')(value) for value in norm_values]
+    showdata['color'] = [cm.get_cmap('coolwarm_r')(value) for value in norm_values]
     plt.figure(figsize=(25, 5))
     if template == brain.Template.allen:
         region_info = brain.read_allen_region_info()

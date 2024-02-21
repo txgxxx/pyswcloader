@@ -11,7 +11,6 @@ from matplotlib import pyplot as plt
 from seaborn import scatterplot
 
 import distance
-import reader.io
 from reader import brain
 from visualization import projection_vis, neuron_vis
 
@@ -110,12 +109,4 @@ def plot_cluster(info, show=True, save_path=None, **kwargs):
             neuron_vis.plot_neuron_2d(neuron_path=file_path, show=show, **kwargs)
     return True
 
-if __name__ == '__main__':
-    projection = pd.read_csv('/home/cdc/data/mouse_data/temp/axon_length.csv', index_col=0)
-    cluster(
-        n_cluster=5,
-        projection=projection,
-        save=True,
-        data_path='/home/cdc/data/mouse_data/test',
-        save_path='/home/cdc/data/mouse_data/temp/'
-    )
+

@@ -1,11 +1,10 @@
-import os
 import platform
 from multiprocessing import cpu_count, Pool
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from tqdm import tqdm
 from functools import partial
-import pandas as pd
 from .projection_neuron import *
+from reader import swc
 
 
 def compute_projection_parallel(func, data_path, cores=int(cpu_count() / 2), **params):
@@ -121,17 +120,4 @@ def topographic_projection_info_batch(data_path, annotation, resolution, cores=i
     return topographic_info
 
 
-# if __name__ == '__main__':
-#     import time
-#
-#     t1 = time.time()
-#     test_path = '/home/cdc/data/mouse_data/test'
-#     annotation = io.read_nrrd('/home/cdc/Documents/mouse_neuron_analysis/database/annotation_10.nrrd')
-#     # data = topographic_projection_info_batch(test_path, annotation, 10)
-#     kwargs_dict = {'annotation': annotation, 'resolution': 10, 'save': False, 'save_path': os.getcwd()}
-#     data = compute_projection_parallel(topographic_projection_info, test_path, cores=4, templates=brain.Template.allen,
-#                                        annotation=annotation, resolution=10, save=False, save_path=None)
-#     print(data.shape)
-#     print(data)
-#     data.to_csv('/home/cdc/Downloads/topo.csv')
-#     print(time.time() - t1)
+

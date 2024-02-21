@@ -3,6 +3,7 @@ from projection import projection_neuron, projection_batch
 from visualization import neuron_vis, projection_vis
 from . import cluster
 from . import distance
+from . import summary
 
 __all__ = [
     'swc',
@@ -13,5 +14,7 @@ __all__ = [
     'distance',
     'cluster',
     'neuron_vis',
-    'projection_vis'
+    'projection_vis',
+    'summary'
+
 ]

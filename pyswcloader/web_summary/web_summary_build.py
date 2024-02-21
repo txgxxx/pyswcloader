@@ -1,14 +1,12 @@
 import os
 import jinja2
-import nrrd
 import pandas as pd
-from reader.brain import Template
 from .web_cluster_info import get_web_projection_info, get_web_neuron_plot
 from .web_neuron_info import get_web_neuron_summary_info, get_web_soma_distribution, get_web_neuron_region_info
 from .web_topo_info import get_web_topo_info
 
 
-TEMPLATE_PATH = 'web_summary/templates/template.html'
+TEMPLATE_PATH = 'templates/template.html'
 
 def build_web_summary(neuron_info, soma_info, cluster_info, topo_info, template, save_path):
     neuron_web_info = get_web_neuron_summary_info(neuron_info[0], neuron_info[2])
@@ -27,7 +25,7 @@ def build_web_summary(neuron_info, soma_info, cluster_info, topo_info, template,
     projection_web_info = get_web_projection_info(cluster_info, score, projection_pattern, template)
     img_web_html = get_web_neuron_plot(save_path)
     topo_web_info = get_web_topo_info(topo_info, template)
-    env = jinja2.environment.Environment(loader=jinja2.FileSystemLoader(searchpath=''))
+    env = jinja2.environment.Environment(loader=jinja2.FileSystemLoader(searchpath=os.path.dirname(os.path.abspath(__file__))))
     template_html = env.get_template(TEMPLATE_PATH)
     html = template_html.render(neuron_info_summary=neuron_web_info,
                                 whole_brain_projection_plot=neuron_region_web_info,

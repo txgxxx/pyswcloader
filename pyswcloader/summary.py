@@ -1,12 +1,11 @@
 import os
-import argparse
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import cpu_count
 
 from cluster import cluster, Method, Feature, plot_cluster
-from projection import projection_neuron, projection_batch
-from reader import io, swc, brain
-from visualization import *
+from projection import projection_batch, projection_neuron
+from reader import brain, io, swc
+from visualization import projection_vis
 from web_summary import build_web_summary
 
 
@@ -72,7 +71,6 @@ class Summary:
                                                                         annotation=self.annotation,
                                                                         resolution=self.resolution,
                                                                         save=False)
-        topographic_info.to_csv('topo.csv', index=0)
         show_data = projection_vis.plot_topographic_projection(topographic_info,
                                                                self.template,
                                                                threshold=2,
@@ -115,31 +113,4 @@ class Summary:
                                                     os.path.join(self.save_path, "topographic_projection.png")))
         return
 
-if __name__ == '__main__':
-    parse = argparse.ArgumentParser(description="args init")
-    parse.add_argument('--data_path', '-d', type=str, default='', help='swc data path')
-    parse.add_argument('--save_path', '-p', type=str, default='', help="results save path")
-    parse.add_argument("--templates", '-t', type=int, default=0,
-                       help="brain altas, 0-allen mouse brain altas(2017) or 1-customized, defalut: 0")
-    parse.add_argument('--annotation', '-a', type=str, default='',
-                       help="when set templates as 1, set annotation path (.nrrd)")
-    parse.add_argument("--resolution", '-r', type=int, default=10, help="the altas annotation resolution")
-    parse.add_argument('--workers', type=int, default=1,
-                       help="The maximum number of processes that can be used to '\
-                       'execute the given calls. If None or not given then as many' \
-                       worker processes will be created as the machine has processors.")
-    parse.add_argument("--n_clusters", '-n', type=int, default=3, help="set cluster number, must be set > 0")
-    args = parse.parse_args()
-    if args.templates == 0:
-        template = brain.Template.allen
-    else:
-        template = brain.Template.customized
-        if not args.annotation:
-            print('annotation must be set since templates is customized.')
-    summary = Summary(data_path=args.data_path,
-                      template=template,
-                      annotation=args.annotation,
-                      resolution=args.resolution,
-                      cores=args.workers,
-                      save_path=args.save_path)
-    summary.summary_pipeline(args.n_clusters)
+

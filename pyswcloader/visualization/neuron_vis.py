@@ -1,5 +1,4 @@
 import os.path
-
 from tqdm import tqdm
 import numpy as np
 from vispy import scene, io
@@ -62,7 +61,7 @@ def plot_neuron_3d(neuron_path, region_path=None, bgcolor=(1, 1, 1, 0), **kwargs
 def plot_neuron_2d(neuron_path, region_path=None, bgcolor=(1, 1, 1, 0), perspective='sagittal', region_color='gray',
                    region_opacity=0.05, show=True, save_path=None, **kwargs):
     if perspective in ['coronal', 'sagittal', 'horizontal']:
-        canvas = scene.SceneCanvas(bgcolor=bgcolor, keys='interactive', show=False)
+        canvas = scene.SceneCanvas(bgcolor=bgcolor, keys='interactive', show=False, app='pyglet')
         view = canvas.central_widget.add_view()
         neurons = neuron_mesh(data_path=neuron_path, **kwargs)
         view.add(neurons)
