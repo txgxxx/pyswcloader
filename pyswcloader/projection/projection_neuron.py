@@ -2,7 +2,7 @@ import os
 import math
 import numpy as np
 import pandas as pd
-from reader import brain, swc, io
+from ..reader import brain, swc, io
 
 
 def projection_length(data_path, template, annotation, resolution, save=False, save_path=os.getcwd()):

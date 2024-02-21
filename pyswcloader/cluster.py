@@ -10,9 +10,9 @@ from sklearn.manifold import TSNE
 from matplotlib import pyplot as plt
 from seaborn import scatterplot
 
-import distance
-from reader import brain
-from visualization import projection_vis, neuron_vis
+from . import distance
+from .reader import brain
+from .visualization import projection_vis, neuron_vis
 
 
 class Method(Enum):

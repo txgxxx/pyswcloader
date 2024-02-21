@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from tqdm import tqdm
 from functools import partial
 from .projection_neuron import *
-from reader import swc
+from ..reader import swc
 
 
 def compute_projection_parallel(func, data_path, cores=int(cpu_count() / 2), **params):

@@ -201,7 +201,7 @@ def plot_soma_distribution(data_path, save=False, save_path=os.getcwd(), **kwarg
     cnt = 1
     for axis in ['x', 'y', 'z']:
         plt.subplot(310 + cnt)
-        sns.kdeplot(list(soma_info[axis]), **kwargs)
+        sns.kdeplot(soma_info[axis].values, **kwargs)
         plt.ylabel('')
         ax = plt.gca()
         if axis == 'x':

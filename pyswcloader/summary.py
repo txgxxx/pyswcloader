@@ -2,11 +2,11 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import cpu_count
 
-from cluster import cluster, Method, Feature, plot_cluster
-from projection import projection_batch, projection_neuron
-from reader import brain, io, swc
-from visualization import projection_vis
-from web_summary import build_web_summary
+from .cluster import cluster, Method, Feature, plot_cluster
+from .projection import projection_batch, projection_neuron
+from .reader import brain, io, swc
+from .visualization import projection_vis
+from .web_summary import build_web_summary
 
 
 class Summary:

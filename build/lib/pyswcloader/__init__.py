@@ -1,10 +1,20 @@
+from .reader import *
+from .projection import projection_neuron, projection_batch
+from .visualization import neuron_vis, projection_vis
+from . import cluster
+from . import distance
+from . import summary
+
 __all__ = [
-    'io',
     'swc',
     'brain',
-    'projection',
+    'io',
+    'projection_neuron',
     'projection_batch',
     'distance',
     'cluster',
-    'visualization',
+    'neuron_vis',
+    'projection_vis',
+    'summary'
+
 ]

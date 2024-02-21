@@ -1,0 +1,48 @@
+Metadata-Version: 2.1
+Name: pyswcloader
+Version: 1.1.1
+Summary: analysis tool for neuron swc files
+Home-page: https://github.com/txgxxx/pyswcloader/
+Author: tsgao
+Author-email: gaots@ion.ac.cn
+License: MIT
+Keywords: swc
+License-File: LICENSE.txt
+Requires-Dist: pynrrd
+Requires-Dist: numpy==1.26.4
+Requires-Dist: pandas==1.4.3
+Requires-Dist: treelib
+Requires-Dist: tqdm
+Requires-Dist: matplotlib==3.5.0
+Requires-Dist: vispy
+Requires-Dist: seaborn==0.13.2
+Requires-Dist: kaleido
+Requires-Dist: glob2
+Requires-Dist: scikit-learn
+Requires-Dist: statistics
+Requires-Dist: scipy
+Requires-Dist: rdp
+Requires-Dist: Jinja2
+Requires-Dist: glfw
+Requires-Dist: pyglet
+Requires-Dist: plotly
+Requires-Dist: distinctipy
+Requires-Dist: pillow
+
+# pyswcloader
+A Python package for neuron swc clustering and projection analysis.
+
+## Installation
+pip install pyswcloader
+
+## Data Specifications
+
+### Neurons
+The swc data format follows such specification: http://www.neuronland.org/NLMorphologyConverter/MorphologyFormats/SWC/Spec.html
+
+### Mouse Template Brain*
+Allen Institute annotated template brain: http://download.alleninstitute.org/informatics-archive/current-release/mouse_ccf/annotation/ccf_2017/
+
+Allen Institute brain annotation: http://api.brain-map.org/api/v2/structure_graph_download/1.json
+Allen Institute brain template mesh: http://download.alleninstitute.org/informatics-archive/current-release/mouse_ccf/annotation/ccf_2017/structure_meshes/
+*Wang, Quanxin, et al. "The Allen mouse brain common coordinate framework: a 3D reference atlas." Cell 181.4 (2020): 936-953.

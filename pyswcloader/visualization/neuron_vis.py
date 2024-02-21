@@ -6,7 +6,7 @@ from vispy.visuals.filters import Alpha
 import pandas as pd
 from matplotlib import pyplot as plt
 
-import reader
+from ..reader import swc
 
 
 def region_mesh(data_path, color='lightgray', opacity=0.1):
@@ -23,12 +23,12 @@ def neuron_mesh(data_path, color='red', size=1, opacity=1):
         if ''.join(list(data_path)[-4:]) == '.swc':
             neuronlist = [data_path]
         else:
-            neuronlist = reader.swc.read_neuron_path(data_path)
+            neuronlist = swc.read_neuron_path(data_path)
     else:
         raise TypeError('data_path must be str or list-like.')
     coords = pd.DataFrame()
     for _neuron_path in tqdm(neuronlist):
-        _coords = reader.swc.read_swc(_neuron_path)
+        _coords = swc.read_swc(_neuron_path)
         coords = pd.concat([coords, _coords], axis=0)
     mesh = scene.visuals.Markers(
         pos=np.array(coords[['x', 'y', 'z']]),

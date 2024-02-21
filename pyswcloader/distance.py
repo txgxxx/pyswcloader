@@ -10,7 +10,7 @@ from sklearn.neighbors import BallTree
 from statistics import mean
 import pandas as pd
 
-from reader import swc
+from .reader import swc
 
 
 def _find_ratio_score(n):

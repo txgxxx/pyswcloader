@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup,find_packages
 
 with open('README.md', 'r') as fh:
     long_description = fh.read()
@@ -10,29 +10,36 @@ setup(
     long_description=long_description,
     # include_package_data=True,
     package_data={
-        'pyswcloader': ['database/*',]
+        'pyswcloader': ['database/*', 'web_summary/templates/*']
         },
     author='tsgao',
     author_email='gaots@ion.ac.cn',
     url='https://github.com/txgxxx/pyswcloader/',
     license='MIT',
     keywords='swc',
-    packages=['pyswcloader'],
-    py_modules=['swc', 'brain', 'projection', 'projection_batch', 'distance', 'cluster', 'visualization'],
+    # packages=['pyswcloader', 'pyswcloader.reader', 'pyswcloader.projection', 'pyswcloader.visualization', 'pyswcloader.web_summary'],
+    packages=find_packages(include='pyswcloader*', exclude='pyswcloader.database'),
+    py_modules=['distance', 'cluster', 'summary'],
     install_requires=[
         'pynrrd', 
-        'numpy', 
-        'pandas', 
+        'numpy==1.26.4',
+        'pandas==1.4.3',
         'treelib', 
         'tqdm', 
-        'matplotlib', 
+        'matplotlib==3.5.0',
         'vispy', 
-        'seaborn', 
+        'seaborn==0.13.2',
         'kaleido', 
         'glob2', 
         'scikit-learn', 
         'statistics', 
         'scipy',
-        'rdp'
+        'rdp',
+        "Jinja2",
+        "glfw",
+        "pyglet",
+        "plotly",
+        "distinctipy",
+        "pillow",
         ]
 )

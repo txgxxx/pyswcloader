@@ -38,17 +38,6 @@ def build_web_summary(neuron_info, soma_info, cluster_info, topo_info, template,
         f.write(html)
 
 
-# if __name__ == '__main__':
-#     soma_info = pd.read_csv('/home/cdc/data/mouse_data/temp/soma_info.csv')
-#     cluster_info = pd.read_csv('/home/cdc/data/mouse_data/temp/cluster_results.csv', index_col=0)
-#     # print(cluster_info)
-#     topo_info = pd.read_csv('/home/cdc/Documents/VisualiaztionTest/neuron_cluster_vis/topo_info.csv')
-#     anno_path = '/home/cdc/Documents/pyswcloader/pyswcloader/database/annotation_10.nrrd'
-#     anno, _ = nrrd.read(anno_path)
-#     build_web_summary([37, 37, 0], soma_info, cluster_info, topo_info,
-#                       template=Template.allen,
-#                       save_path='/home/cdc/data/mouse_data/temp1/')
-
 
 
 

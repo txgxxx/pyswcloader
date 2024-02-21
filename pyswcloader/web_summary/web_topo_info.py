@@ -1,7 +1,7 @@
 import plotly as py
 import plotly.graph_objects as go
 
-from reader.brain import Template
+from ..reader.brain import Template
 
 
 def get_web_topo_info(topo_info, template):
