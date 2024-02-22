@@ -13,7 +13,7 @@ from sklearn.decomposition import PCA
 from ..reader import brain
 
 
-def plot_topographic_projection(data, template=brain.Template.allen, threshold=10, p_threshold=0.05, save=False, save_path=os.getcwd()):
+def plot_topographic_projection(data, template=brain.Template.allen, threshold=10, p_threshold=0.05, save=False, show=False, save_path=os.getcwd()):
     data['soma_pca'] = PCA(n_components=1).fit_transform(data[['soma_x', 'soma_y', 'soma_z']])
     data['term_pca'] = PCA(n_components=1).fit_transform(data[['x', 'y', 'z']])
     terminal_groups = data.groupby('region')
@@ -48,18 +48,20 @@ def plot_topographic_projection(data, template=brain.Template.allen, threshold=1
     plt.ylim((0, 1))
     if save:
         plt.savefig(os.path.join(save_path, 'topographic_projection.png'))
+    if show:
+        plt.show()
     plt.close()
     return showdata
 
 
-def plot_correlation(data, region, save=False, save_path=os.getcwd()):
-    region_data = data[data.region == region]
+def plot_correlation(data, region, save=False, show=False, save_path=os.getcwd()):
+    region_data = data.loc[region]
     region_data['soma_pca'] = PCA(n_components=1).fit_transform(region_data[['soma_x', 'soma_y', 'soma_z']])
     region_data['term_pca'] = PCA(n_components=1).fit_transform(region_data[['x', 'y', 'z']])
     x = region_data.soma_pca
     y = region_data.term_pca
     regression_result = linregress(x, y)
-    scatterplot(x, y, s=10)
+    scatterplot(x=x, y=y, s=10)
     plt.plot([min(x), max(x)],
              [min(x) * regression_result.slope + regression_result.intercept,
               max(x) * regression_result.slope + regression_result.intercept],
@@ -75,7 +77,9 @@ def plot_correlation(data, region, save=False, save_path=os.getcwd()):
     plt.yticks([])
     if save:
         plt.savefig(os.path.join(save_path, region + '_topographic_correlation.png'))
-    plt.close()
+    if show:
+        plt.show()
+    # plt.close()
     return
 
 

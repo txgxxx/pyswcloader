@@ -1,6 +1,9 @@
 LICENSE.txt
 README.md
+__init__.py
+requirements.txt
 setup.py
+test.ipynb
 tutorial.ipynb
 .idea/.gitignore
 .idea/misc.xml
