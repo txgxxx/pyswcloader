@@ -32,4 +32,4 @@ def get_web_topo_info(topo_info, template):
     fig.update_layout(height=300,
                       # width=800,
                       )
-    return py.offline.plot(fig, include_plotlyjs=False, output_type='div')
+    return py.offline.plot(fig, include_plotlyjs=False, output_type='div', config= {'displaylogo': False})

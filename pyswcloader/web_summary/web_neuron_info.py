@@ -29,7 +29,7 @@ def get_web_neuron_region_info(projection):
             width=0.25,
             hovertemplate=
             '<b>region</b>: %{x}' +
-            '<br><b>rvalue</b>: %{y:.3f}<extra></extra>'
+            '<br><b>mean axon length</b>: %{y:.3f}<extra></extra>'
 
         )
     )
@@ -37,7 +37,7 @@ def get_web_neuron_region_info(projection):
         height=300,
         # width=800,
         showlegend=False, )
-    return py.offline.plot(fig, include_plotlyjs=False, output_type='div')
+    return py.offline.plot(fig, include_plotlyjs=False, output_type='div', config= {'displaylogo': False})
 
 
 def get_web_soma_distribution(soma_info):
@@ -97,5 +97,5 @@ def get_web_soma_distribution(soma_info):
         height=450,
         # width=800,
         showlegend=False,)
-    return py.offline.plot(fig, include_plotlyjs=False, output_type='div')
+    return py.offline.plot(fig, include_plotlyjs=False, output_type='div', config= {'displaylogo': False})
 

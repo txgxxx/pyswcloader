@@ -227,7 +227,7 @@ def get_web_cluster_info(cluster_info):
     return cluster_html
 
 def get_web_neuron_plot(neuron_path):
-    path_list = glob.glob(os.path.join(neuron_path, '**/cluster-*.png'), recursive=True)
+    path_list = glob.glob(os.path.join(os.path.abspath(neuron_path), 'cluster-*.png'), recursive=True)
     # img_html = '<div><div class="listyle">\n'
     # for path in path_list:
     #     img_html += '<li><img src="file://%s" alt="%s" /></li>\n'%(path, path.split('/')[-1].split('.')[0])
@@ -478,6 +478,6 @@ def get_web_projection_info(cluster_info, scores, axon_length, template):
                               'zeroline': False,
                               'showticklabels': False,
                               'ticks': ""},)
-    return py.offline.plot(fig, include_plotlyjs=False, output_type='div')
+    return py.offline.plot(fig, include_plotlyjs=False, output_type='div', config={'displaylogo': False})
 
 
