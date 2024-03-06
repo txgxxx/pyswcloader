@@ -18,8 +18,8 @@ def _find_ratio_score(n):
     return mean*mean_pct+maxi*(1-mean_pct)
 
 def morphology_distance(neuron1_path, neuron2_path):
-    n1 = swc.read_swc(neuron1_path)
-    n2 = swc.read_swc(neuron2_path)
+    n1 = swc.swc_preprocess(neuron1_path)
+    n2 = swc.swc_preprocess(neuron2_path)
     P = n1.loc[:, 'x':'z']
     Q = n2.loc[:, 'x':'z']
     tree = BallTree(P, leaf_size=256)

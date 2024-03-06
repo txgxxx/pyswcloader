@@ -1,0 +1,14 @@
+Metadata-Version: 2.1
+Name: pyswcloader
+Version: 1.1.1
+Summary: analysis tool for neuron swc files
+Home-page: https://github.com/txgxxx/pyswcloader/
+Author: tsgao
+Author-email: gaots@ion.ac.cn
+License: MIT
+Keywords: swc
+License-File: LICENSE.txt
+
+This library is built for single-cell clustering based on neuron morphology and projection analysis.
+
+For source code and tutorials, please refer to: https://github.com/txgxxx/pyswcloader.
