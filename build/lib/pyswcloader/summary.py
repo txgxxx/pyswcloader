@@ -36,7 +36,7 @@ class Summary:
         return len(path_list), sum(results), wrong_swc
 
     def __get_neuron_info(self, ):
-        soma_info = swc.plot_soma_distribution(self.data_path, save=True, save_path=self.save_path)
+        soma_info, _ = swc.plot_soma_distribution(self.data_path, save=True, save_path=self.save_path)
         return soma_info
 
     def __get_axon_length(self):
@@ -71,7 +71,7 @@ class Summary:
                                                                         annotation=self.annotation,
                                                                         resolution=self.resolution,
                                                                         save=False)
-        show_data = projection_vis.plot_topographic_projection(topographic_info,
+        show_data, _ = projection_vis.plot_topographic_projection(topographic_info,
                                                                self.template,
                                                                threshold=10,
                                                                p_threshold=0.05,

@@ -30,7 +30,7 @@ def plot_topographic_projection(data, template=brain.Template.allen, threshold=1
     bar = cm.ScalarMappable(norm, cmap)
     norm_values = (showdata.p_value - min(showdata.p_value)) / (max(showdata.p_value) - min(showdata.p_value))
     showdata['color'] = [cm.get_cmap('coolwarm_r')(value) for value in norm_values]
-    plt.figure(figsize=(25, 5))
+    fig = plt.figure(figsize=(25, 5))
     if template == brain.Template.allen:
         region_info = brain.read_allen_region_info()
         showdata['family'] = [region_info.loc[item, 'family'] for item in showdata.index]
@@ -50,8 +50,7 @@ def plot_topographic_projection(data, template=brain.Template.allen, threshold=1
         plt.savefig(os.path.join(save_path, 'topographic_projection.png'))
     if show:
         plt.show()
-    plt.close()
-    return showdata
+    return showdata, fig
 
 
 def plot_correlation(data, region, save=False, show=False, save_path=os.getcwd()):
@@ -61,6 +60,7 @@ def plot_correlation(data, region, save=False, show=False, save_path=os.getcwd()
     x = region_data.soma_pca
     y = region_data.term_pca
     regression_result = linregress(x, y)
+    fig = plt.figure()
     scatterplot(x=x, y=y, s=10)
     plt.plot([min(x), max(x)],
              [min(x) * regression_result.slope + regression_result.intercept,
@@ -79,8 +79,7 @@ def plot_correlation(data, region, save=False, show=False, save_path=os.getcwd()
         plt.savefig(os.path.join(save_path, region + '_topographic_correlation.png'))
     if show:
         plt.show()
-    # plt.close()
-    return
+    return fig
 
 
 def plot_allen_template_clustermap(axon_length, cluster_results, with_dendrogram=False, linkage=None, save=False, save_path=os.getcwd()):
@@ -114,6 +113,7 @@ def plot_allen_template_clustermap(axon_length, cluster_results, with_dendrogram
     length = max(width, int(len(cluster_results) * 0.01))
     data_log = np.log(data_agg)
     data_log = data_log.replace(-np.inf, 0)
+    fig = plt.figure()
     if with_dendrogram:
         g = clustermap(data_log.loc[region_dict_family.index.tolist()], cmap="coolwarm",
                            row_colors=row_colors, col_colors=col_colors,
@@ -163,7 +163,7 @@ def plot_allen_template_clustermap(axon_length, cluster_results, with_dendrogram
             os.mkdir(save_path)
         plt.savefig(os.path.join(save_path, 'projection_pattern.png'))
         data_agg.loc[region_dict_family.index.tolist()].to_csv(os.path.join(save_path, 'projection_pattern.csv'))
-    return
+    return fig
 
 
 def plot_customized_template_clustermap(axon_length,
@@ -188,6 +188,7 @@ def plot_customized_template_clustermap(axon_length,
     length = max(width, int(len(cluster_results) * 0.01))
     data_log = np.log(data_t)
     data_log = data_log.replace(-np.inf, 0)
+    fig = plt.figure()
     if with_dendrogram:
         g = clustermap(data_log, cmap="coolwarm",
                            col_colors=col_colors,
@@ -232,7 +233,7 @@ def plot_customized_template_clustermap(axon_length,
             os.mkdir(save_path)
         plt.savefig(os.path.join(save_path, 'projection_pattern.png'))
         data_t.to_csv(os.path.join(save_path, 'projection_pattern.csv'))
-    return
+    return fig
 
 
 
