@@ -1,21 +1,32 @@
 import platform
-from multiprocessing import cpu_count, Pool
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
-from tqdm import tqdm
+from multiprocessing import cpu_count
+from multiprocessing.pool import Pool, ThreadPool
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
+from tqdm import tqdm, trange
 from functools import partial
 from .projection_neuron import *
 from ..reader import swc
 
 
-def compute_projection_parallel(func, data_path, cores=int(cpu_count() / 2), **params):
+def compute_projection_parallel(func, data_path, cores=None, **params):
     path_list = swc.read_neuron_path(data_path)
+    # if platform.system() == 'Linux':
+    #     with ProcessPoolExecutor(max_workers=cores) as executor:
+    #         results = [executor.submit(func, data_path=path, **params) for path in path_list]
+    #         # results = list(tqdm(executor.map(partial(func, **params), path_list), total=len(path_list)))
+    # else:
+    #     with ThreadPoolExecutor(max_workers=cores) as executor:
+    #         results = [executor.submit(func, data_path=path, **params) for path in path_list]
+    #         # results = list(tqdm(executor.map(partial(func, **params), path_list), total=len(path_list)))
+    #
+    # data = pd.concat([f.result() for f in tqdm(as_completed(results), total=len(results))])
     if platform.system() == 'Linux':
-        with ProcessPoolExecutor(max_workers=cores) as executor:
-            results = list(tqdm(executor.map(partial(func, **params), path_list), total=len(path_list)))
+        pool = Pool(cores)
     else:
-        with ThreadPoolExecutor(max_workers=cores) as executor:
-            results = list(tqdm(executor.map(partial(func, **params), path_list), total=len(path_list)))
-    data = pd.concat(results)
+        pool = ThreadPool(cores)
+    data = pd.concat(pool.map(partial(func, **params), tqdm(path_list)))
+    pool.close()
+    pool.join()
     return data
 
 

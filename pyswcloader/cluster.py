@@ -37,6 +37,7 @@ def cluster(n_cluster: int = 4,
             min_samples: int = 5,
             save: bool = False,
             save_path: str = os.getcwd(),
+            cores = None,
             **kwargs) -> pd.DataFrame:
     """
     :param n_cluster:
@@ -55,7 +56,7 @@ def cluster(n_cluster: int = 4,
     """
     info = pd.DataFrame()
     if feature == Feature.morphology:
-        matrix = distance.morphology_matrix(data_path=data_path, save_path=os.path.join(save_path, 'scores_record.txt'))
+        matrix = distance.morphology_matrix(data_path=data_path, save_path=os.path.join(save_path, 'scores_record.txt'), cores=cores)
     if sorted(list(matrix.index)) == sorted(list(matrix.columns)):
         vec = squareform(matrix)
         Z = linkage(vec, 'ward')
