@@ -8,17 +8,17 @@ from .web_topo_info import get_web_topo_info
 
 TEMPLATE_PATH = 'templates/template.html'
 
-def build_web_summary(neuron_info, soma_info, cluster_info, topo_info, template, save_path):
+def build_web_summary(neuron_info, soma_info, cluster_info, topo_info, template, save_path, score):
     neuron_web_info = get_web_neuron_summary_info(neuron_info[0], neuron_info[2])
 
     soma_web_info = get_web_soma_distribution(soma_info)
-    info = pd.read_csv(os.path.join(save_path, 'scores_record.txt'), sep=' ', header=None)
-    info = info.drop_duplicates()
-    _score = info.pivot_table(index=0, columns=1, values=2)
-    _score = _score.fillna(0)
-    score = _score + _score.T
-    score.index = list(score.index)
-    score.columns = list(score.columns)
+    # info = pd.read_csv(os.path.join(save_path, 'scores_record.txt'), sep=' ', header=None)
+    # info = info.drop_duplicates()
+    # _score = info.pivot_table(index=0, columns=1, values=2)
+    # _score = _score.fillna(0)
+    # score = _score + _score.T
+    # score.index = list(score.index)
+    # score.columns = list(score.columns)
 
     projection_pattern = pd.read_csv(os.path.join(save_path, 'projection_pattern.csv'), index_col=0)
     neuron_region_web_info = get_web_neuron_region_info(projection_pattern)

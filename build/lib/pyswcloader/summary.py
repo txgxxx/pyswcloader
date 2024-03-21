@@ -73,7 +73,7 @@ class Summary:
                                                                         save=False)
         show_data = projection_vis.plot_topographic_projection(topographic_info,
                                                                self.template,
-                                                               threshold=2,
+                                                               threshold=10,
                                                                p_threshold=0.05,
                                                                save=True,
                                                                save_path=self.save_path)

@@ -3,8 +3,9 @@ import platform
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from functools import partial
 from multiprocessing import cpu_count
+from multiprocessing.pool import Pool, ThreadPool
 from collections import Counter
-from tqdm import tqdm
+from tqdm import tqdm, trange
 import numpy as np
 from sklearn.neighbors import BallTree
 from statistics import mean
@@ -66,11 +67,16 @@ def morphology_matrix(data_path, cores=int(cpu_count() / 2), save_path=os.path.j
                 for j in range(i, len(path_list)):
                     pairs.append([path_list[i], path_list[j]])
     if platform.system() == 'Linux':
-        with ProcessPoolExecutor(max_workers=cores) as executor:
-            results = list(tqdm(executor.map(partial(_set_call_back, pairs=pairs, save_path=save_path), list(range(len(pairs)))), total=len(pairs)))
+        # with ProcessPoolExecutor(max_workers=cores) as executor:
+        #     results = list(tqdm(executor.map(partial(_set_call_back, pairs=pairs, save_path=save_path), list(range(len(pairs)))), total=len(pairs)))
+        pool = Pool(cores)
     else:
-        with ThreadPoolExecutor(max_workers=cores) as executor:
-            results = list(tqdm(executor.map(partial(_set_call_back, pairs=pairs, save_path=save_path), list(range(len(pairs)))), total=len(pairs)))
+        # with ThreadPoolExecutor(max_workers=cores) as executor:
+        #     results = list(tqdm(executor.map(partial(_set_call_back, pairs=pairs, save_path=save_path), list(range(len(pairs)))), total=len(pairs)))
+        pool = ThreadPool(cores)
+    pool.map(partial(_set_call_back, pairs=pairs, save_path=save_path), trange(len(pairs)))
+    pool.close()
+    pool.join()
     print('Calculation done. Aggregating data...')
     info = pd.read_csv(save_path, sep=' ', header=None)
     info = info.drop_duplicates()
