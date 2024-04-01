@@ -10,7 +10,10 @@ from scipy.spatial.distance import squareform
 
 from plotly.subplots import make_subplots
 
-from ..reader.brain import Template, read_allen_region_info
+from pyswcloader.reader.brain import *
+
+
+# from ..reader.brain import Template, read_allen_region_info
 
 
 class _Dendrogram(object):

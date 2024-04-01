@@ -1,11 +1,13 @@
 import platform
 from multiprocessing import cpu_count
 from multiprocessing.pool import Pool, ThreadPool
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
-from tqdm import tqdm, trange
+from tqdm import tqdm
 from functools import partial
-from .projection_neuron import *
-from ..reader import swc
+import pandas as pd
+from pyswcloader.projection.projection_neuron import *
+from pyswcloader.reader import swc, brain, io
+
+
 
 
 def compute_projection_parallel(func, data_path, cores=None, **params):
@@ -130,5 +132,19 @@ def topographic_projection_info_batch(data_path, annotation, resolution, cores=i
     pool.join()
     return topographic_info
 
+
+
+if __name__ == '__main__':
+
+    path = '/home/cdc/data/mouse_data/test1000'
+    template = brain.Template.allen
+    axon_length = compute_projection_parallel(projection_length,
+                                              path,
+                                              cores=4,
+                                               template=template,
+                                               annotation=io.ALLEN_ANNOTATION,
+                                               resolution=10,
+                                               save=False)
+    axon_length.to_csv('/home/cdc/data/mouse_data/test1000_axon_length.csv')
 
 

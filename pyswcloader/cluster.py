@@ -80,7 +80,7 @@ def cluster(n_cluster: int = 4,
         dbscan = DBSCAN(eps=eps, min_samples=min_samples, **kwargs).fit(matrix)
         info['label'] = dbscan.labels_
     fig = plt.figure()
-    plot = scatterplot(x=tsne[:, 0], y=tsne[:, 1], hue=info.label)
+    plot = scatterplot(x=tsne[:, 0], y=tsne[:, 1], hue=info.label.astype(str))
     if projection is not None:
         if template == brain.Template.allen:
             projection_vis.plot_allen_template_clustermap(projection, info,

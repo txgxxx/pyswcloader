@@ -10,7 +10,10 @@ from scipy.stats import linregress
 from seaborn import scatterplot, hls_palette, clustermap
 from sklearn.decomposition import PCA
 
-from ..reader import brain
+from pyswcloader.reader import brain
+
+
+# from ..reader import brain
 
 
 def plot_topographic_projection(data, template=brain.Template.allen, threshold=10, p_threshold=0.05, save=False, show=False, save_path=os.getcwd()):
