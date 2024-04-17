@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="1e5c864f-791d-44db-baee-584e17cb25dc" name="hpc">
+        <fileTransfer rootFolder="/home/dongzhou" accessType="SFTP" host="172.20.10.250" port="20007" sshConfigId="c866d59e-52ce-4e19-95bd-961feab71b74" sshConfig="dongzhou@172.20.10.250:20007 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

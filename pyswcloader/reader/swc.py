@@ -225,4 +225,4 @@ def plot_soma_distribution(data_path, save=False, save_path=os.getcwd(), **kwarg
     plt.subplots_adjust(wspace=0)
     if save:
         fig.savefig(os.path.join(save_path, 'soma_distribution.png'))
-    return soma_info
+    return soma_info, fig

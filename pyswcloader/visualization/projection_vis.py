@@ -10,7 +10,10 @@ from scipy.stats import linregress
 from seaborn import scatterplot, hls_palette, clustermap
 from sklearn.decomposition import PCA
 
-from ..reader import brain
+from pyswcloader.reader import brain
+
+
+# from ..reader import brain
 
 
 def plot_topographic_projection(data, template=brain.Template.allen, threshold=10, p_threshold=0.05, save=False, show=False, save_path=os.getcwd()):
@@ -30,7 +33,7 @@ def plot_topographic_projection(data, template=brain.Template.allen, threshold=1
     bar = cm.ScalarMappable(norm, cmap)
     norm_values = (showdata.p_value - min(showdata.p_value)) / (max(showdata.p_value) - min(showdata.p_value))
     showdata['color'] = [cm.get_cmap('coolwarm_r')(value) for value in norm_values]
-    plt.figure(figsize=(25, 5))
+    fig = plt.figure(figsize=(25, 5))
     if template == brain.Template.allen:
         region_info = brain.read_allen_region_info()
         showdata['family'] = [region_info.loc[item, 'family'] for item in showdata.index]
@@ -50,8 +53,7 @@ def plot_topographic_projection(data, template=brain.Template.allen, threshold=1
         plt.savefig(os.path.join(save_path, 'topographic_projection.png'))
     if show:
         plt.show()
-    plt.close()
-    return showdata
+    return showdata, fig
 
 
 def plot_correlation(data, region, save=False, show=False, save_path=os.getcwd()):
@@ -61,6 +63,7 @@ def plot_correlation(data, region, save=False, show=False, save_path=os.getcwd()
     x = region_data.soma_pca
     y = region_data.term_pca
     regression_result = linregress(x, y)
+    fig = plt.figure()
     scatterplot(x=x, y=y, s=10)
     plt.plot([min(x), max(x)],
              [min(x) * regression_result.slope + regression_result.intercept,
@@ -79,13 +82,19 @@ def plot_correlation(data, region, save=False, show=False, save_path=os.getcwd()
         plt.savefig(os.path.join(save_path, region + '_topographic_correlation.png'))
     if show:
         plt.show()
-    # plt.close()
-    return
+    return fig
 
 
 def plot_allen_template_clustermap(axon_length, cluster_results, with_dendrogram=False, linkage=None, save=False, save_path=os.getcwd()):
+    # 数据验证
+    if not cluster_results.any():
+        raise ValueError("cluster_results is empty or invalid.")
+    if 'label' not in cluster_results.columns:
+        raise KeyError("'label' column is missing in cluster_results_data.")
+
     if not with_dendrogram:
         cluster_results = cluster_results.sort_values(by='label')
+    
     projection = axon_length.loc[cluster_results.index]
     projection_t = projection.loc[:, projection.any()].T
     region_info = brain.read_allen_region_info()
@@ -93,50 +102,62 @@ def plot_allen_template_clustermap(axon_length, cluster_results, with_dendrogram
     label_colors = distinctipy.get_colors(len(labels), pastel_factor=0.65)
     label_colors = dict(zip(map(int, labels), label_colors))
     col_colors = cluster_results.label.map(label_colors)
+    
     projection_t = pd.concat([projection_t, region_info], axis=1, join='inner')
     data_agg = projection_t[:-3].groupby('parent').agg('sum')
     data_agg.index.name = ''
     distribution = np.mean(data_agg, axis=1)
     distribution = distribution.sort_values(ascending=False)
-    top_region = distribution.shape[0] if distribution[0] < 30 else 31
+
+    const_top_region = 30
+    top_region = min(distribution.shape[0], const_top_region) if distribution[
+                                                                     0] < const_top_region else const_top_region
     region_dict_family = region_info[['parent', 'family']].drop_duplicates()
     region_dict_family = region_dict_family.set_index('parent', drop=False)
     region_dict_family = region_dict_family.loc[distribution.index[:top_region]]
     region_dict_family = region_dict_family.sort_values(by='family')
+
     data_family = pd.concat([data_agg, region_dict_family], axis=1, join='inner').sort_values(by='family')
     data_family.index.name = ''
     family_colors = hls_palette(len(set(data_family.family)), s=0.45)
     row_family = dict(zip(map(str, list(set(data_family.family))), family_colors))
+
     row_colors = data_family.family.map(row_family)
     row_colors.rename('region', inplace=True)
     row_colors.index.name = ''
+
     width = max(25, int(len(region_dict_family) * 0.6))
     length = max(width, int(len(cluster_results) * 0.01))
+
     data_log = np.log(data_agg)
     data_log = data_log.replace(-np.inf, 0)
+
+    fig = plt.figure()
+    common_params = {
+        'cmap': "coolwarm",
+        'col_colors': col_colors,
+        'row_colors': row_colors,
+        'row_cluster': False,
+        'col_cluster': with_dendrogram,
+        'linewidths': 0.0001,
+        'figsize': (length, width),
+        'xticklabels': False,
+        'colors_ratio': 0.02,
+        'cbar_kws': {"pad": 0.001, "use_gridspec": False}
+    }
+
     if with_dendrogram:
-        g = clustermap(data_log.loc[region_dict_family.index.tolist()], cmap="coolwarm",
-                           row_colors=row_colors, col_colors=col_colors,
-                           row_cluster=False, col_cluster=with_dendrogram,
-                           col_linkage=linkage,
-                           dendrogram_ratio=(.1, .2),
-                           # cbar_pos=(.02, .6, .02, .2),
-                           linewidths=.0001,
-                           figsize=(length, width),
-                           colors_ratio=0.02,
-                           xticklabels=False,
-                           cbar_kws={"pad": 0.001, "use_gridspec": False})
+        dendrogram_params = {
+            'col_linkage': linkage,
+            'dendrogram_ratio': (0.1, 0.2),
+        }
     else:
-        g = clustermap(data_log.loc[region_dict_family.index.tolist()], cmap="coolwarm",
-                           row_colors=row_colors, col_colors=col_colors,
-                           row_cluster=False, col_cluster=with_dendrogram,
-                           dendrogram_ratio=(0.1, 0.05),
-                           # cbar_pos=(.02, .6, .02, .2),
-                           linewidths=.0001,
-                           figsize=(length, width),
-                           colors_ratio=0.02,
-                           xticklabels=False,
-                           cbar_kws={"pad": 0.001, "use_gridspec": False})
+        dendrogram_params = {
+            'dendrogram_ratio': (0.1, 0.05),
+
+        }
+    g = clustermap(data_log.loc[region_dict_family.index.tolist()], **common_params, **dendrogram_params)
+
     g.ax_heatmap.yaxis.tick_left()
     g.ax_heatmap.tick_params(left=False)
     g.fig.subplots_adjust(left=0.)
@@ -163,7 +184,8 @@ def plot_allen_template_clustermap(axon_length, cluster_results, with_dendrogram
             os.mkdir(save_path)
         plt.savefig(os.path.join(save_path, 'projection_pattern.png'))
         data_agg.loc[region_dict_family.index.tolist()].to_csv(os.path.join(save_path, 'projection_pattern.csv'))
-    return
+
+    return fig
 
 
 def plot_customized_template_clustermap(axon_length,
@@ -172,48 +194,65 @@ def plot_customized_template_clustermap(axon_length,
                                         linkage=None,
                                         save=False,
                                         save_path=os.getcwd()):
-    if not with_dendrogram:
-        cluster_results = cluster_results.sort_values(by='label')
+    # 数据验证
+    if not cluster_results.any():
+        raise ValueError("cluster_results is empty or invalid.")
+    if 'label' not in cluster_results.columns:
+        raise KeyError("'label' column is missing in cluster_results_data.")
+
+    cluster_results = cluster_results.sort_values(by='label')
     projection = axon_length.loc[cluster_results.index]
+    if not projection.any().any():
+        raise ValueError("projection_data is empty or invalid after filtering.")
+
     projection_t = projection.loc[:, projection.any()].T
     labels = list(cluster_results.label.unique())
+    if not labels:
+        raise ValueError("No unique labels found in cluster_results_data.")
+
     label_colors = distinctipy.get_colors(len(labels), pastel_factor=0.65)
     label_colors = dict(zip(map(int, labels), label_colors))
     col_colors = cluster_results.label.map(label_colors)
+
     distribution = np.mean(projection_t, axis=1)
     distribution = distribution.sort_values(ascending=False)
-    region_num = distribution.shape[0] if distribution[0] < 30 else 30
+    region_num = min(distribution.shape[0], 30)
+
     data_t = projection_t.loc[distribution.index[:region_num]]
     width = max(25, int(region_num * 0.6))
     length = max(width, int(len(cluster_results) * 0.01))
+
     data_log = np.log(data_t)
     data_log = data_log.replace(-np.inf, 0)
+
+    fig = plt.figure()
+    # 绘图参数
+    common_params = {
+        'cmap': "coolwarm",
+        'col_colors': col_colors,
+        'row_cluster': False,
+        'cbar_pos': (0.01, 0.6, 0.02, 0.2),
+        'linewidths': 0.0001,
+        'figsize': (length, width),
+        'xticklabels': False,
+        'cbar_kws': {"pad": 0.001}
+    }
+
     if with_dendrogram:
-        g = clustermap(data_log, cmap="coolwarm",
-                           col_colors=col_colors,
-                           row_cluster=False, col_cluster=with_dendrogram,
-                           col_linkage=linkage,
-                           dendrogram_ratio=(.1, .2),
-                           cbar_pos=(.01, .6, .02, .2),
-                           linewidths=.0001,
-                           figsize=(length, width),
-                           colors_ratio=0.015,
-                           xticklabels=False,
-                           cbar_kws={"pad": 0.001}
-                           )
+        dendrogram_params = {
+            'col_cluster': with_dendrogram,
+            'col_linkage': linkage,
+            'dendrogram_ratio': (0.1, 0.2),
+            'colors_ratio': 0.015
+        }
     else:
-        g = clustermap(data_log, cmap="coolwarm",
-                           col_colors=col_colors,
-                           row_cluster=False,
-                           col_cluster=with_dendrogram,
-                           cbar_pos=(.01, .6, .02, .2),
-                           linewidths=.0001,
-                           figsize=(length, width),
-                           dendrogram_ratio=(0.1, 0.05),
-                           colors_ratio=0.02,
-                           xticklabels=False,
-                           cbar_kws={"pad": 0.001}
-                           )
+        dendrogram_params = {
+            'col_cluster': False,
+            'dendrogram_ratio': (0.1, 0.05),
+            'colors_ratio': 0.02
+        }
+    g = clustermap(data_log, **common_params, **dendrogram_params)
+
     g.ax_heatmap.yaxis.tick_left()
     g.ax_heatmap.tick_params(left=False)
 
@@ -232,7 +271,7 @@ def plot_customized_template_clustermap(axon_length,
             os.mkdir(save_path)
         plt.savefig(os.path.join(save_path, 'projection_pattern.png'))
         data_t.to_csv(os.path.join(save_path, 'projection_pattern.csv'))
-    return
+    return fig
 
 
 

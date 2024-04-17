@@ -6,7 +6,10 @@ from vispy.visuals.filters import Alpha
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from ..reader import swc
+from pyswcloader.reader import swc
+
+
+# from ..reader import swc
 
 
 def region_mesh(data_path, color='lightgray', opacity=0.1):

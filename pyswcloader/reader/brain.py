@@ -4,7 +4,7 @@ from enum import Enum
 import numpy as np
 import pandas as pd
 from treelib import Tree
-from .io import CURRENT_WD
+from pyswcloader.reader.io import CURRENT_WD
 
 
 class Template(Enum):

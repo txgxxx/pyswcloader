@@ -1,9 +1,15 @@
 import os
 import jinja2
 import pandas as pd
-from .web_cluster_info import get_web_projection_info, get_web_neuron_plot
-from .web_neuron_info import get_web_neuron_summary_info, get_web_soma_distribution, get_web_neuron_region_info
-from .web_topo_info import get_web_topo_info
+
+from pyswcloader.web_summary.web_cluster_info import get_web_projection_info, get_web_neuron_plot
+from pyswcloader.web_summary.web_neuron_info import get_web_neuron_summary_info, get_web_soma_distribution, \
+    get_web_neuron_region_info
+from pyswcloader.web_summary.web_topo_info import get_web_topo_info
+
+# from .web_cluster_info import get_web_projection_info, get_web_neuron_plot
+# from .web_neuron_info import get_web_neuron_summary_info, get_web_soma_distribution, get_web_neuron_region_info
+# from .web_topo_info import get_web_topo_info
 
 
 TEMPLATE_PATH = 'templates/template.html'

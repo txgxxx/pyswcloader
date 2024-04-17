@@ -10,7 +10,10 @@ from scipy.spatial.distance import squareform
 
 from plotly.subplots import make_subplots
 
-from ..reader.brain import Template, read_allen_region_info
+from pyswcloader.reader.brain import *
+
+
+# from ..reader.brain import Template, read_allen_region_info
 
 
 class _Dendrogram(object):
@@ -361,7 +364,7 @@ def get_web_projection_info(cluster_info, scores, axon_length, template):
         z=axon_length,
         colorscale='rdylbu_r',
         opacity=0.9,
-        xgap=1, ygap=1,
+        xgap=0, ygap=1,
         colorbar=dict(len=0.3, y=0.655)), row=3, col=2)
 
     for anno in anno_regions:

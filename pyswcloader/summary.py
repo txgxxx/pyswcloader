@@ -1,12 +1,10 @@
-import os
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import cpu_count
 
-from .cluster import cluster, Method, Feature, plot_cluster
-from .projection import projection_batch, projection_neuron
-from .reader import brain, io, swc
-from .visualization import projection_vis
-from .web_summary import build_web_summary
+from pyswcloader.cluster import *
+from pyswcloader.projection import projection_batch, projection_neuron
+from pyswcloader.reader import brain, io, swc
+from pyswcloader.web_summary import build_web_summary
 
 
 class Summary:
@@ -36,7 +34,7 @@ class Summary:
         return len(path_list), sum(results), wrong_swc
 
     def __get_neuron_info(self, ):
-        soma_info = swc.plot_soma_distribution(self.data_path, save=True, save_path=self.save_path)
+        soma_info, _ = swc.plot_soma_distribution(self.data_path, save=True, save_path=self.save_path)
         return soma_info
 
     def __get_axon_length(self):
@@ -71,9 +69,9 @@ class Summary:
                                                                         annotation=self.annotation,
                                                                         resolution=self.resolution,
                                                                         save=False)
-        show_data = projection_vis.plot_topographic_projection(topographic_info,
+        show_data, _ = projection_vis.plot_topographic_projection(topographic_info,
                                                                self.template,
-                                                               threshold=2,
+                                                               threshold=10,
                                                                p_threshold=0.05,
                                                                save=True,
                                                                save_path=self.save_path)
