@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 brain
 cluster
 distance
@@ -6,3 +7,9 @@ projection_batch
 pyswcloader
 swc
 visualization
+=======
+cluster
+distance
+pyswcloader
+summary
+>>>>>>> 1c222d209dd3d41d3f974e4f39fe1264f774273c
