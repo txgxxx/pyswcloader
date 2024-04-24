@@ -9,6 +9,7 @@ __all__ = [
     'swc',
     'brain',
     'io',
+    'brain_mouse_hpf',
     'projection_neuron',
     'projection_batch',
     'distance',

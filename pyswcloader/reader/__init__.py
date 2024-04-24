@@ -1,9 +1,11 @@
-# from . import swc
-# from . import brain
-# from . import io
-from pyswcloader.reader import swc, brain, io
+from . import swc
+from . import brain
+from . import io
+from . import brain_mouse_hpf
+
 __all__ = [
     "swc",
     "brain",
-    "io"
+    "io",
+    "brain_mouse_hpf"
     ]

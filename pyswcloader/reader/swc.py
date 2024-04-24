@@ -28,7 +28,15 @@ def check_swc(path):
 
 
 def swc_preprocess(path, save_path=None, save=False, check_validity=True, flip=True, dimension=[13200, 8000, 11400]):
-    data = read_swc(path)
+    with open(path, 'r') as f:
+        test = f.readline()
+    f.close()
+    if '\t' in test:
+        data = pd.read_csv(path, sep='\t', header=None, comment='#')
+    else:
+        data = pd.read_csv(path, sep=' ', header=None, comment='#')
+    data.columns = ['id', 'type', 'x', 'y', 'z', 'radius', 'parent']
+    data.index = np.arange(1, len(data) + 1)
     if flip and float(data.loc[1, 'z']) > (11400 / 2):
         data.z = dimension[2] - data.z
     if check_validity:

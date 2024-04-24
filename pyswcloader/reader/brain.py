@@ -84,5 +84,3 @@ def find_parent(key, layer, json_path):
     elif isinstance(key, str):
         return find_acronym_by_id(id, json_path)
 
-
-

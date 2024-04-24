@@ -22,3 +22,5 @@ STL_ACRO_DICT = load_pkl(os.path.join(CURRENT_WD, 'database', 'stl_acro_dict.pkl
 ACRO_STL_DICT = load_pkl(os.path.join(CURRENT_WD, 'database', 'acro_stl_dict.pkl'))
 ALLEN_ANNOTATION = read_nrrd(os.path.join(CURRENT_WD, 'database', 'annotation_10.nrrd'))
 ALLEN_ROOT_PATH = os.path.join(CURRENT_WD, 'database', '997.obj')
+
+
