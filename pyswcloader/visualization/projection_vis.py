@@ -86,12 +86,6 @@ def plot_correlation(data, region, save=False, show=False, save_path=os.getcwd()
 
 
 def plot_allen_template_clustermap(axon_length, cluster_results, with_dendrogram=False, linkage=None, save=False, save_path=os.getcwd()):
-    # 数据验证
-    if not cluster_results.any():
-        raise ValueError("cluster_results is empty or invalid.")
-    if 'label' not in cluster_results.columns:
-        raise KeyError("'label' column is missing in cluster_results_data.")
-
     if not with_dendrogram:
         cluster_results = cluster_results.sort_values(by='label')
     
@@ -195,20 +189,14 @@ def plot_customized_template_clustermap(axon_length,
                                         save=False,
                                         save_path=os.getcwd()):
     # 数据验证
-    if not cluster_results.any():
-        raise ValueError("cluster_results is empty or invalid.")
-    if 'label' not in cluster_results.columns:
-        raise KeyError("'label' column is missing in cluster_results_data.")
+
 
     cluster_results = cluster_results.sort_values(by='label')
     projection = axon_length.loc[cluster_results.index]
-    if not projection.any().any():
-        raise ValueError("projection_data is empty or invalid after filtering.")
 
     projection_t = projection.loc[:, projection.any()].T
     labels = list(cluster_results.label.unique())
-    if not labels:
-        raise ValueError("No unique labels found in cluster_results_data.")
+
 
     label_colors = distinctipy.get_colors(len(labels), pastel_factor=0.65)
     label_colors = dict(zip(map(int, labels), label_colors))
