@@ -13,10 +13,17 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
-def read_swc(path):
+def read_swc(path, mode='axon'):
     data = pd.read_csv(path, sep=' ', header=None, comment='#')
     data.columns = ['id', 'type', 'x', 'y', 'z', 'radius', 'parent']
     data.index = np.arange(1, len(data) + 1)
+    if mode in ['axon', 'dendrite', 'all']:
+        if mode == 'axon':
+            data = data[~data.type.isin([3,4])]
+        elif mode == 'dendrite':
+            data = data[data.type.isin([1, 3, 4])]
+    else:
+        raise ValueError("'mode' must be 'axon', 'dendrite' or 'all'.")
     return data
 
 
