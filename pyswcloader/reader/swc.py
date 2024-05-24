@@ -59,13 +59,10 @@ def swc_preprocess(path, save_path=None, save=False, check_validity=True, flip=T
 
     if data.x.max() > dimension[0]:
         data.x = [item if item < dimension[0] else dimension[0] - 1 for item in data.x]
-        print('X axis exceeds boundary.')
     if data.y.max() > dimension[1]:
         data.y = [item if item < dimension[1] else dimension[1] - 1 for item in data.y]
-        print('Y axis exceeds boundary.')
     if data.z.max() > dimension[2]:
         data.z = [item if item < dimension[2] else dimension[2] - 1 for item in data.z]
-        print('Z axis exceeds boundary.')
     if save:
         data.to_csv(save_path, sep=" ", header=None, index=None)
     return data
