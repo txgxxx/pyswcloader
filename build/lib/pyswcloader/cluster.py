@@ -100,14 +100,19 @@ def cluster(n_cluster: int = 4,
     return info
 
 
-def plot_cluster(info, show=True, save_path=None, **kwargs):
+def plot_cluster(info, show=True, save_path=None, backend='plotly', **kwargs):
     for l in np.unique(info.label):
         file_path = list(info[info.label == l]['file_path'])
         if save_path is not None:
-            neuron_vis.plot_neuron_2d(neuron_path=file_path, show=show,
-                                         save_path=os.path.join(save_path, 'cluster-' + str(l) + '.png'), **kwargs)
+            if backend == 'plotly':
+                neuron_vis.plot_neuron_2d_plotly(neuron_path=file_path, save_path=os.path.join(save_path, 'cluster-' + str(l) + '.png'), **kwargs)
+            else:
+                neuron_vis.plot_neuron_2d_vispy(neuron_path=file_path, save_path=os.path.join(save_path, 'cluster-' + str(l) + '.png'), **kwargs)
         else:
-            neuron_vis.plot_neuron_2d(neuron_path=file_path, show=show, **kwargs)
+            if backend == 'plotly':
+                neuron_vis.plot_neuron_2d_plotly(neuron_path=file_path, show=show, **kwargs)
+            else:
+                neuron_vis.plot_neuron_2d_vispy(neuron_path=file_path, show=show, **kwargs)
     return True
 
 

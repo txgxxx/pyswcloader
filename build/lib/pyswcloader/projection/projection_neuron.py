@@ -15,6 +15,8 @@ def projection_length(data_path, template, annotation, resolution, save=False, s
     for idx in data.index[1:]:
         reg = data.loc[idx, 'region']
         parent_idx = data.loc[idx, 'parent']
+        if parent_idx not in set(data.index):
+            continue
         parent_reg = data.loc[parent_idx, 'region']
         _is_axon = data.loc[idx, 'type']
         _parent_is_axon = data.loc[parent_idx, 'type']
@@ -48,6 +50,8 @@ def projection_length_ipsi(data_path, template, annotation, resolution, save=Fal
         reg = data.loc[idx, 'region']
         ipsi = data.loc[idx, 'ipsi']
         parent_idx = data.loc[idx, 'parent']
+        if parent_idx not in set(data.index):
+            continue
         parent_reg = data.loc[parent_idx, 'region']
         parent_ipsi = data.loc[parent_idx, 'ipsi']
         _is_axon = data.loc[idx, 'type']
@@ -90,6 +94,8 @@ def projection_length_contra(data_path, template, annotation, resolution, save=F
         reg = data.loc[idx, 'region']
         ipsi = data.loc[idx, 'ipsi']
         parent_idx = data.loc[idx, 'parent']
+        if parent_idx not in set(data.index):
+            continue
         parent_reg = data.loc[parent_idx, 'region']
         parent_ipsi = data.loc[parent_idx, 'ipsi']
         _is_axon = data.loc[idx, 'type']
@@ -204,7 +210,6 @@ def topographic_projection_info(data_path, template, annotation, resolution, sav
         region_info = brain.read_allen_region_info()
         topo_info['region'] = [region_info.loc[item, 'parent'] if item in region_info.index else np.NaN for item in topo_info.region]
         topo_info = topo_info.dropna()
-    topo_info = topo_info[['x', 'y', 'z', 'region']].groupby('region').agg('mean')
     topo_info['neuron'] = neuron_name
     topo_info['soma_x'] = soma_info.x
     topo_info['soma_y'] = soma_info.y

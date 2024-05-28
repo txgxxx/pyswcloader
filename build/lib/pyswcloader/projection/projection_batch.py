@@ -12,16 +12,7 @@ from pyswcloader.reader import swc, brain, io
 
 def compute_projection_parallel(func, data_path, cores=None, **params):
     path_list = swc.read_neuron_path(data_path)
-    # if platform.system() == 'Linux':
-    #     with ProcessPoolExecutor(max_workers=cores) as executor:
-    #         results = [executor.submit(func, data_path=path, **params) for path in path_list]
-    #         # results = list(tqdm(executor.map(partial(func, **params), path_list), total=len(path_list)))
-    # else:
-    #     with ThreadPoolExecutor(max_workers=cores) as executor:
-    #         results = [executor.submit(func, data_path=path, **params) for path in path_list]
-    #         # results = list(tqdm(executor.map(partial(func, **params), path_list), total=len(path_list)))
-    #
-    # data = pd.concat([f.result() for f in tqdm(as_completed(results), total=len(results))])
+
     if platform.system() == 'Linux':
         pool = Pool(cores)
     else:
@@ -134,17 +125,5 @@ def topographic_projection_info_batch(data_path, annotation, resolution, cores=i
 
 
 
-if __name__ == '__main__':
-
-    path = '/home/cdc/data/mouse_data/test1000'
-    template = brain.Template.allen
-    axon_length = compute_projection_parallel(projection_length,
-                                              path,
-                                              cores=4,
-                                               template=template,
-                                               annotation=io.ALLEN_ANNOTATION,
-                                               resolution=10,
-                                               save=False)
-    axon_length.to_csv('/home/cdc/data/mouse_data/test1000_axon_length.csv')
 
 

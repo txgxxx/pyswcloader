@@ -1,13 +1,4 @@
 pynrrd
-<<<<<<< HEAD
-numpy
-pandas
-treelib
-tqdm
-matplotlib
-vispy
-seaborn
-=======
 numpy==1.26.4
 pandas==1.4.3
 treelib
@@ -15,19 +6,16 @@ tqdm
 matplotlib==3.5.0
 vispy
 seaborn==0.13.2
->>>>>>> 1c222d209dd3d41d3f974e4f39fe1264f774273c
 kaleido
 glob2
 scikit-learn
 statistics
 scipy
 rdp
-<<<<<<< HEAD
-=======
 Jinja2
 glfw
 pyglet
 plotly
 distinctipy
 pillow
->>>>>>> 1c222d209dd3d41d3f974e4f39fe1264f774273c
+meshio
