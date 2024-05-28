@@ -17,14 +17,15 @@ from pyswcloader.reader import brain
 
 
 def plot_topographic_projection(data, template=brain.Template.allen, threshold=10, p_threshold=0.05, save=False, show=False, save_path=os.getcwd()):
-    data['soma_pca'] = PCA(n_components=1).fit_transform(data[['soma_x', 'soma_y', 'soma_z']])
-    data['term_pca'] = PCA(n_components=1).fit_transform(data[['x', 'y', 'z']])
     terminal_groups = data.groupby('region')
     corr = pd.DataFrame(index=data.index.unique(), columns=['r_value', 'p_value'])
     for region, group in terminal_groups:
-        if len(group) > threshold:
-            corr.loc[region, 'r_value'] = linregress(group.soma_pca, group.term_pca).rvalue
-            corr.loc[region, 'p_value'] = linregress(group.soma_pca, group.term_pca).pvalue
+        topo_info = group[['x', 'y', 'z', 'neuron', 'soma_x', 'soma_y', 'soma_z']].groupby('neuron').agg('mean')
+        topo_info['soma_pca'] = PCA(n_components=1).fit_transform(topo_info[['soma_x', 'soma_y', 'soma_z']])
+        topo_info['term_pca'] = PCA(n_components=1).fit_transform(topo_info[['x', 'y', 'z']])
+        if len(topo_info) > threshold:
+            corr.loc[region, 'r_value'] = linregress(topo_info.soma_pca, topo_info.term_pca).rvalue
+            corr.loc[region, 'p_value'] = linregress(topo_info.soma_pca, topo_info.term_pca).pvalue
     showdata = corr.dropna()
     showdata.r_value = abs(corr.r_value)
     showdata = showdata[showdata.p_value < p_threshold]

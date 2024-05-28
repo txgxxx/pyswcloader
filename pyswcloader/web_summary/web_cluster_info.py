@@ -225,21 +225,18 @@ def get_web_cluster_info(cluster_info):
     classes = 'class="table table-border"'
     cluster_html = cluster_group.to_html(header=False)
     cluster_html = cluster_html.replace('class="dataframe"', classes)
-    # bootstrap_link = '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">'
-    # cluster_html = bootstrap_link + '\n' + cluster_html
     return cluster_html
 
 def get_web_neuron_plot(neuron_path):
-    path_list = glob.glob(os.path.join(os.path.abspath(neuron_path), 'cluster-*.png'), recursive=True)
-    # img_html = '<div><div class="listyle">\n'
-    # for path in path_list:
-    #     img_html += '<li><img src="file://%s" alt="%s" /></li>\n'%(path, path.split('/')[-1].split('.')[0])
-    # img_html += '</div></div>'
+    path_list = glob.glob(os.path.join(neuron_path, '**/cluster-*.png'), recursive=True)
+
     img_html = '<div class="container-fluid"><div class="row justify-content-start">\n'
 
     for idx, path in enumerate(path_list):
         img_html += '<div class="col-xs-6 col-md-3 col-lg-2 "> <div class="thumbnail">' \
-                    '<img class="img-responsive" src="%s" alt="%s" /><p class="text-center">%s</p></div></div>\n'%(path.split('/')[-1], path.split('/')[-1].split('.')[0], path.split('/')[-1].split('\\')[-1].split('.')[0])
+                    '<img class="img-responsive" src="%s" alt="%s" /><p class="text-center">%s</p></div></div>\n' % (
+                    path.split(neuron_path)[-1].lstrip('/').lstrip('\\'), path.split('/')[-1].split('.')[0],
+                    path.split('/')[-1].split('\\')[-1].split('.')[0])
     img_html += '</div></div>'
     return img_html
 

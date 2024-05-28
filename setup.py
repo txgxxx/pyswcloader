@@ -41,5 +41,6 @@ setup(
         "plotly",
         "distinctipy",
         "pillow",
+        "meshio"
         ]
 )

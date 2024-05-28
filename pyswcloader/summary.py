@@ -47,6 +47,19 @@ class Summary:
                                                                         save=False)
         return self.axon_length
 
+    def __get_terminal_count(self):
+        terminal_count = projection_batch.compute_projection_parallel(projection_neuron.terminal_count,
+                                                                     self.data_path,
+                                                                     cores=self.cores,
+                                                                     template=self.template,
+                                                                     annotation=self.annotation,
+                                                                     resolution=self.resolution,
+                                                                     save=False)
+        terminal_count.to_csv(os.path.join(self.save_path, 'terminal_count.csv'))
+
+        return terminal_count
+
+
     def __get_cluster_info(self, n_clusters):
         self.__get_axon_length()
         self.axon_length.to_csv(os.path.join(self.save_path, 'axon_length.csv'))
@@ -57,11 +70,15 @@ class Summary:
                                projection=self.axon_length,
                                data_path=self.data_path,
                                save=True,
-                               save_path=self.save_path)
-        plot_cluster(cluster_info, show=False, save_path=self.save_path, region_path=self.region_path, region_opacity=0.2, bgcolor='white')
+                               save_path=self.save_path,
+                               cores=self.cores)
+        cluster_save_path = os.path.join(self.save_path, 'clusters')
+        if not os.path.exists(cluster_save_path):
+            os.mkdir(cluster_save_path)
+        plot_cluster(cluster_info, show=False, save_path=cluster_save_path, region_path=self.region_path, region_opacity=0.2, bgcolor='white')
         return cluster_info
 
-    def __get_topographic_info(self):
+    def __get_topographic_info(self, saved=True):
         topographic_info = projection_batch.compute_projection_parallel(projection_neuron.topographic_projection_info,
                                                                         self.data_path,
                                                                         cores=self.cores,
@@ -69,12 +86,15 @@ class Summary:
                                                                         annotation=self.annotation,
                                                                         resolution=self.resolution,
                                                                         save=False)
-        show_data, _ = projection_vis.plot_topographic_projection(topographic_info,
+        show_data = projection_vis.plot_topographic_projection(topographic_info,
                                                                self.template,
-                                                               threshold=10,
+                                                               threshold=2,
                                                                p_threshold=0.05,
                                                                save=True,
                                                                save_path=self.save_path)
+        if saved:
+            topographic_info[['neuron', 'x', 'y', 'z', 'region']].to_csv(os.path.join(self.save_path, 'terminal_info.csv'), index=False)
+            show_data[['r_value', 'p_value']].to_csv(os.path.join(self.save_path, 'topographic_projection.csv'))
         return show_data
 
     def summary_pipeline(self, n_clusters):
@@ -83,6 +103,8 @@ class Summary:
         print('neuron num:%2d, valid neuron num:%2d, fix %2d neurons' % (neuron_num, is_valid, not_valid))
         #
         soma_info = self.__get_neuron_info()
+        self.__get_terminal_count()
+
         # cluster info
         if n_clusters <= 0:
             print('illegal cluster num settings, the n_cluster must be set > 0')
@@ -99,12 +121,18 @@ class Summary:
         print("web summary path: %s\n" \
               "cluster result path: %s\n"\
               "axon length path: %s\n"\
+              "terminal counts path: %s\n"\
+              "terminal info path: %s\n"\
+              "topographic projection info path: %s\n"\
               "soma distribution path: %s\n"\
               "projection pattern path: %s\n"\
               "tsne path: %s\n"\
               "topographic projection path:%s\n" % (os.path.join(self.save_path, 'Single-Neuron-Report.html'),
                                                     os.path.join(self.save_path, 'cluster_results.csv'),
                                                     os.path.join(self.save_path, 'axon_length.csv'),
+                                                    os.path.join(self.save_path, 'terminal_counts.csv'),
+                                                    os.path.join(self.save_path, 'terminal_info.csv'),
+                                                    os.path.join(self.save_path, 'topographic_projection.csv'),
                                                     os.path.join(self.save_path, 'soma_distribution.png'),
                                                     os.path.join(self.save_path, 'projection_pattern.png'),
                                                     os.path.join(self.save_path, 'tsne.png'),
