@@ -154,7 +154,7 @@ def plot_neuron_2d_plotly(neuron_path, region_path, perspective='sagittal', colo
             fig.show()
         if save_path is not None:
             fig.write_image(save_path)
-        return
+        return fig
 
 
 

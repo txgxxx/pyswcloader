@@ -1,5 +1,5 @@
-from .io import *
-from .brain import find_region
+from pyswcloader.reader.io import *
+from pyswcloader.reader.brain import find_region
 import numpy as np
 import pandas as pd
 import glob
