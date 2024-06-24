@@ -59,6 +59,7 @@ def plot_topographic_projection(data, template=brain.Template.allen, threshold=1
 
 def plot_correlation(data, region, save=False, show=False, save_path=os.getcwd()):
     region_data = data[data['region'] == region]
+    region_data = region_data[['x', 'y', 'z', 'neuron', 'soma_x', 'soma_y', 'soma_z']].groupby('neuron').agg('mean')
     region_data['soma_pca'] = PCA(n_components=1).fit_transform(region_data[['soma_x', 'soma_y', 'soma_z']])
     region_data['term_pca'] = PCA(n_components=1).fit_transform(region_data[['x', 'y', 'z']])
     x = region_data.soma_pca
