@@ -4,6 +4,9 @@ A Python package for neuron swc clustering and projection analysis.
 ## Installation
 pip install pyswcloader
 
+## Methods and Citation
+Jiao, Z., Gao, T., Wang, X. et al. Projectome-based characterization of hypothalamic peptidergic neurons in male mice. Nat Neurosci (2025). https://doi.org/10.1038/s41593-025-01919-0
+
 ## Data Specifications
 
 ### Neurons
